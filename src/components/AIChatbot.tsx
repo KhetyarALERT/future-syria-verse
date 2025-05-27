@@ -193,13 +193,19 @@ const AIChatbot: React.FC = () => {
 
     try {
       // Save chat session to Supabase
-      await supabase
+      const { error: upsertError } = await supabase
         .from('chat_sessions')
         .upsert({
           session_id: sessionId,
           messages: [...messages, userMessage],
           user_data: { language }
+        }, {
+          onConflict: 'session_id'
         });
+
+      if (upsertError) {
+        console.error('Error saving chat session:', upsertError);
+      }
 
       // Get AI response
       const aiResponse = await simulateAIResponse(input);
@@ -214,13 +220,19 @@ const AIChatbot: React.FC = () => {
       setMessages(prev => [...prev, botMessage]);
       
       // Update chat session with bot response
-      await supabase
+      const { error: updateError } = await supabase
         .from('chat_sessions')
         .upsert({
           session_id: sessionId,
           messages: [...messages, userMessage, botMessage],
           user_data: { language }
+        }, {
+          onConflict: 'session_id'
         });
+
+      if (updateError) {
+        console.error('Error updating chat session:', updateError);
+      }
 
     } catch (error) {
       console.error('Error sending message:', error);
