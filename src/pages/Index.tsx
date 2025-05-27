@@ -11,6 +11,8 @@ import ThemeProvider from '../components/ThemeProvider';
 import ChatBot from '../components/ChatBot';
 import ServicePage from '../components/ServicePage';
 import RequirementForm from '../components/RequirementForm';
+import InquiryPage from './InquiryPage';
+import InquiryDashboard from '../components/InquiryDashboard';
 import { Toaster } from "@/components/ui/toaster";
 
 const Index = () => {
@@ -46,6 +48,8 @@ const Index = () => {
           <Route path="/services/ai-assistants" element={<ServicePage service="ai-assistants" />} />
           <Route path="/services/automation" element={<ServicePage service="automation" />} />
           <Route path="/requirements" element={<RequirementForm />} />
+          <Route path="/inquiry" element={<InquiryPage />} />
+          <Route path="/dashboard" element={<InquiryDashboard />} />
         </Routes>
 
         {showGameOnboarding && (

@@ -9,7 +9,121 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      chat_sessions: {
+        Row: {
+          created_at: string
+          id: string
+          inquiry_id: string | null
+          messages: Json | null
+          session_id: string
+          updated_at: string
+          user_data: Json | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          inquiry_id?: string | null
+          messages?: Json | null
+          session_id: string
+          updated_at?: string
+          user_data?: Json | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          inquiry_id?: string | null
+          messages?: Json | null
+          session_id?: string
+          updated_at?: string
+          user_data?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_sessions_inquiry_id_fkey"
+            columns: ["inquiry_id"]
+            isOneToOne: false
+            referencedRelation: "inquiries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inquiries: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          inquiry_text: string
+          inquiry_type: Database["public"]["Enums"]["inquiry_type"]
+          language: string
+          metadata: Json | null
+          name: string
+          phone: string | null
+          status: Database["public"]["Enums"]["inquiry_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          inquiry_text: string
+          inquiry_type?: Database["public"]["Enums"]["inquiry_type"]
+          language?: string
+          metadata?: Json | null
+          name: string
+          phone?: string | null
+          status?: Database["public"]["Enums"]["inquiry_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          inquiry_text?: string
+          inquiry_type?: Database["public"]["Enums"]["inquiry_type"]
+          language?: string
+          metadata?: Json | null
+          name?: string
+          phone?: string | null
+          status?: Database["public"]["Enums"]["inquiry_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      support_requests: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          inquiry_id: string | null
+          priority: string | null
+          reason: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          inquiry_id?: string | null
+          priority?: string | null
+          reason: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          inquiry_id?: string | null
+          priority?: string | null
+          reason?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_requests_inquiry_id_fkey"
+            columns: ["inquiry_id"]
+            isOneToOne: false
+            referencedRelation: "inquiries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -18,7 +132,13 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      inquiry_status: "new" | "in_progress" | "resolved" | "closed"
+      inquiry_type:
+        | "service_inquiry"
+        | "support_request"
+        | "complaint"
+        | "suggestion"
+        | "general"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -133,6 +253,15 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      inquiry_status: ["new", "in_progress", "resolved", "closed"],
+      inquiry_type: [
+        "service_inquiry",
+        "support_request",
+        "complaint",
+        "suggestion",
+        "general",
+      ],
+    },
   },
 } as const
