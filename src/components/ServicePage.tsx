@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowUp, Star, Clock, Shield, Dollar } from 'lucide-react';
+import { ArrowUp, Star, Clock, Shield, DollarSign } from 'lucide-react';
 
 interface ServicePageProps {
   service: string;
