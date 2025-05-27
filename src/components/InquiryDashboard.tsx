@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -9,9 +8,9 @@ interface Inquiry {
   name: string;
   email: string;
   phone?: string;
-  inquiry_type: string;
+  inquiry_type: 'service_inquiry' | 'support_request' | 'complaint' | 'suggestion' | 'general';
   inquiry_text: string;
-  status: string;
+  status: 'new' | 'in_progress' | 'resolved' | 'closed';
   language: string;
   created_at: string;
   metadata?: any;
@@ -92,7 +91,7 @@ const InquiryDashboard: React.FC = () => {
     };
   };
 
-  const updateInquiryStatus = async (id: string, status: string) => {
+  const updateInquiryStatus = async (id: string, status: 'new' | 'in_progress' | 'resolved' | 'closed') => {
     try {
       const { error } = await supabase
         .from('inquiries')
@@ -292,7 +291,7 @@ const InquiryDashboard: React.FC = () => {
                       <div className="flex flex-col gap-2">
                         <select
                           value={inquiry.status}
-                          onChange={(e) => updateInquiryStatus(inquiry.id, e.target.value)}
+                          onChange={(e) => updateInquiryStatus(inquiry.id, e.target.value as 'new' | 'in_progress' | 'resolved' | 'closed')}
                           className="px-3 py-1 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-800 dark:text-gray-200 text-sm"
                         >
                           <option value="new">New</option>
