@@ -192,15 +192,16 @@ const AIChatbot: React.FC = () => {
     setIsTyping(true);
 
     try {
-      // Save chat session to Supabase
+      // Save chat session to Supabase - convert messages to JSON format
+      const messagesJson = JSON.stringify([...messages, userMessage]);
+      const userDataJson = JSON.stringify({ language });
+
       const { error: upsertError } = await supabase
         .from('chat_sessions')
-        .upsert([{
+        .upsert({
           session_id: sessionId,
-          messages: [...messages, userMessage],
-          user_data: { language }
-        }], {
-          onConflict: 'session_id'
+          messages: messagesJson,
+          user_data: userDataJson
         });
 
       if (upsertError) {
@@ -220,14 +221,14 @@ const AIChatbot: React.FC = () => {
       setMessages(prev => [...prev, botMessage]);
       
       // Update chat session with bot response
+      const updatedMessagesJson = JSON.stringify([...messages, userMessage, botMessage]);
+
       const { error: updateError } = await supabase
         .from('chat_sessions')
-        .upsert([{
+        .upsert({
           session_id: sessionId,
-          messages: [...messages, userMessage, botMessage],
-          user_data: { language }
-        }], {
-          onConflict: 'session_id'
+          messages: updatedMessagesJson,
+          user_data: userDataJson
         });
 
       if (updateError) {
