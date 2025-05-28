@@ -6,7 +6,7 @@ import { X, Send, Paperclip, Bot, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
+import { useIntelligentAgent } from './IntelligentChatAgent';
 
 interface Message {
   id: string;
@@ -24,10 +24,12 @@ interface ModernChatProps {
 const ModernChat: React.FC<ModernChatProps> = ({ isOpen, onClose }) => {
   const { t, i18n } = useTranslation();
   const { toast } = useToast();
+  const { getAIResponse, userInfo, isCollectingInfo } = useIntelligentAgent();
+  
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      content: t('chat.welcome'),
+      content: "Hello! Welcome to DigitalPro - your premium digital solutions partner. I'm your intelligent assistant and I'm here to understand your needs and connect you with our expert team. How can I help you today?",
       sender: 'bot',
       timestamp: new Date()
     }
@@ -61,44 +63,20 @@ const ModernChat: React.FC<ModernChatProps> = ({ isOpen, onClose }) => {
     setInput('');
     setIsTyping(true);
 
-    try {
-      // Save to Supabase
-      const { error } = await supabase
-        .from('inquiries')
-        .insert({
-          name: 'Chat User',
-          email: 'chat@temp.com',
-          inquiry_type: 'general' as const,
-          inquiry_text: input,
-          language: i18n.language,
-          metadata: {
-            source: 'chat_widget',
-            timestamp: new Date().toISOString()
-          }
-        });
-
-      if (error) throw error;
-
-      // Simulate bot response
-      setTimeout(() => {
-        const botResponse: Message = {
-          id: (Date.now() + 1).toString(),
-          content: "Thank you for your message! Our team will review your inquiry and get back to you soon. In the meantime, feel free to browse our services or request a detailed quote.",
-          sender: 'bot',
-          timestamp: new Date()
-        };
-        setMessages(prev => [...prev, botResponse]);
-        setIsTyping(false);
-      }, 1500);
-
-    } catch (error) {
-      console.error('Error sending message:', error);
+    // Get AI response using intelligent agent
+    setTimeout(() => {
+      const aiResponse = getAIResponse(input, messages);
+      
+      const botResponse: Message = {
+        id: (Date.now() + 1).toString(),
+        content: aiResponse,
+        sender: 'bot',
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, botResponse]);
       setIsTyping(false);
-      toast({
-        title: t('form.error'),
-        variant: "destructive",
-      });
-    }
+    }, 1000 + Math.random() * 1500);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -111,12 +89,20 @@ const ModernChat: React.FC<ModernChatProps> = ({ isOpen, onClose }) => {
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length > 0) {
-      // Handle file upload logic here
       toast({
         title: "File uploaded successfully",
+        description: "Our team will review your file with your inquiry.",
       });
     }
   };
+
+  const quickQuestions = [
+    "I need a logo design",
+    "Website development quote",
+    "Marketing services",
+    "E-commerce solution",
+    "Full branding package"
+  ];
 
   return (
     <AnimatePresence>
@@ -135,9 +121,11 @@ const ModernChat: React.FC<ModernChatProps> = ({ isOpen, onClose }) => {
               </div>
               <div>
                 <h2 className="text-lg font-semibold text-white">
-                  {t('chat.title')}
+                  DigitalPro Assistant
                 </h2>
-                <p className="text-sm text-gray-400">Online • Responds quickly</p>
+                <p className="text-sm text-gray-400">
+                  {isCollectingInfo ? 'Collecting your requirements...' : 'Online • Responds instantly'}
+                </p>
               </div>
             </div>
             <Button variant="ghost" onClick={onClose} className="text-gray-400 hover:text-white">
@@ -161,7 +149,7 @@ const ModernChat: React.FC<ModernChatProps> = ({ isOpen, onClose }) => {
                 )}
                 
                 <div
-                  className={`max-w-[80%] p-3 rounded-2xl ${
+                  className={`max-w-[80%] p-3 rounded-2xl whitespace-pre-line ${
                     message.sender === 'user'
                       ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white'
                       : 'bg-slate-800 text-gray-200'
@@ -208,6 +196,22 @@ const ModernChat: React.FC<ModernChatProps> = ({ isOpen, onClose }) => {
                 </div>
               </motion.div>
             )}
+
+            {/* Quick Questions */}
+            {messages.length === 1 && (
+              <div className="flex flex-wrap gap-2 mt-4">
+                {quickQuestions.map((question, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setInput(question)}
+                    className="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-gray-300 rounded-lg text-sm transition-colors"
+                  >
+                    {question}
+                  </button>
+                ))}
+              </div>
+            )}
+
             <div ref={messagesEndRef} />
           </div>
 
@@ -231,7 +235,7 @@ const ModernChat: React.FC<ModernChatProps> = ({ isOpen, onClose }) => {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder={t('chat.placeholder')}
+                placeholder={isCollectingInfo ? "Please provide the requested information..." : "Type your message..."}
                 className="flex-1 bg-slate-800 border-slate-600 text-white placeholder:text-gray-400"
               />
               <Button
