@@ -13,6 +13,7 @@ interface UserInfo {
   budget?: string;
   timeline?: string;
   description?: string;
+  [key: string]: string | undefined;
 }
 
 interface ChatMessage {
@@ -91,18 +92,24 @@ export const useIntelligentAgent = () => {
 
   const saveToSupabase = async () => {
     try {
+      const inquiryText = `Service: ${userInfo.serviceNeeded || 'Not specified'}
+Budget: ${userInfo.budget || 'Not specified'}
+Timeline: ${userInfo.timeline || 'Not specified'}
+Company: ${userInfo.company || 'Not specified'}
+Description: ${userInfo.description || 'Not specified'}`;
+
       const { error } = await supabase
         .from('inquiries')
         .insert({
           name: userInfo.name || 'Chat User',
           email: userInfo.email || 'pending@digitalpro.com',
-          phone: userInfo.phone,
+          phone: userInfo.phone || null,
           inquiry_type: 'general' as const,
-          inquiry_text: `Service: ${userInfo.serviceNeeded}\nBudget: ${userInfo.budget}\nTimeline: ${userInfo.timeline}\nCompany: ${userInfo.company}\nDescription: ${userInfo.description}`,
+          inquiry_text: inquiryText,
           language: i18n.language,
           metadata: {
             source: 'intelligent_chat_agent',
-            userInfo: userInfo,
+            userInfo: JSON.parse(JSON.stringify(userInfo)),
             timestamp: new Date().toISOString()
           }
         });
