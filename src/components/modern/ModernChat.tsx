@@ -65,17 +65,17 @@ const ModernChat: React.FC<ModernChatProps> = ({ isOpen, onClose }) => {
       // Save to Supabase
       const { error } = await supabase
         .from('inquiries')
-        .insert([{
+        .insert({
           name: 'Chat User',
           email: 'chat@temp.com',
-          inquiry_type: 'chat_message',
+          inquiry_type: 'general' as const,
           inquiry_text: input,
           language: i18n.language,
           metadata: {
             source: 'chat_widget',
             timestamp: new Date().toISOString()
           }
-        }]);
+        });
 
       if (error) throw error;
 

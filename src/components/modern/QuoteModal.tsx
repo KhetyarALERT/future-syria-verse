@@ -62,11 +62,11 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
       // Save to Supabase
       const { error } = await supabase
         .from('inquiries')
-        .insert([{
+        .insert({
           name: formData.name,
           email: formData.email,
           phone: formData.phone || null,
-          inquiry_type: 'quote_request',
+          inquiry_type: 'service_inquiry' as const,
           inquiry_text: `Service: ${formData.service}\n\nDescription: ${formData.description}`,
           language: i18n.language,
           metadata: {
@@ -74,7 +74,7 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ isOpen, onClose }) => {
             service: formData.service,
             timestamp: new Date().toISOString()
           }
-        }]);
+        });
 
       if (error) throw error;
 
