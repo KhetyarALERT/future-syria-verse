@@ -1,0 +1,84 @@
+
+{
+  "nav": {
+    "home": "Home",
+    "services": "Services",
+    "about": "About",
+    "contact": "Contact",
+    "portfolio": "Portfolio"
+  },
+  "hero": {
+    "title": "Premium Digital Solutions",
+    "subtitle": "Transforming businesses through cutting-edge technology and innovative design",
+    "description": "We deliver world-class digital experiences that drive growth and innovation for forward-thinking companies.",
+    "requestQuote": "Request Quote",
+    "chatNow": "Chat Now"
+  },
+  "services": {
+    "title": "Our Services",
+    "subtitle": "Comprehensive digital solutions tailored to your business needs",
+    "logoDesign": {
+      "title": "Logo Design",
+      "description": "Distinctive brand identities that capture your essence"
+    },
+    "productPackaging": {
+      "title": "Product & Packaging",
+      "description": "Innovative packaging solutions that stand out"
+    },
+    "branding": {
+      "title": "Branding",
+      "description": "Complete brand strategies and visual systems"
+    },
+    "marketing": {
+      "title": "Marketing",
+      "description": "Data-driven marketing campaigns that convert"
+    },
+    "socialMedia": {
+      "title": "Social Media Management",
+      "description": "Engaging social presence across all platforms"
+    },
+    "smartCX": {
+      "title": "Smart CX System",
+      "description": "Intelligent customer experience automation"
+    },
+    "webDevelopment": {
+      "title": "Web & E-commerce",
+      "description": "High-performance websites and online stores"
+    },
+    "personalAssistant": {
+      "title": "Personal Assistant",
+      "description": "Intelligent automation for enhanced productivity"
+    },
+    "erp": {
+      "title": "Enterprise ERP",
+      "description": "Complete business management solutions"
+    }
+  },
+  "chat": {
+    "title": "How can we help?",
+    "placeholder": "Type your message...",
+    "send": "Send",
+    "typing": "Typing...",
+    "welcome": "Hello! How can we assist you today?",
+    "uploadFile": "Upload File",
+    "close": "Close"
+  },
+  "form": {
+    "name": "Full Name",
+    "email": "Email Address",
+    "phone": "Phone Number",
+    "service": "Service Needed",
+    "description": "Project Description",
+    "submit": "Submit Request",
+    "selectService": "Select a service",
+    "success": "Request submitted successfully! We'll contact you soon.",
+    "error": "Something went wrong. Please try again."
+  },
+  "footer": {
+    "description": "Premium digital solutions for modern businesses",
+    "services": "Services",
+    "company": "Company",
+    "contact": "Contact Us",
+    "rights": "All rights reserved"
+  }
+}
