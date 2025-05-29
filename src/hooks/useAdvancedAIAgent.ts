@@ -21,6 +21,7 @@ interface UserInfo {
 interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
+  [key: string]: any;
 }
 
 export const useAdvancedAIAgent = () => {
@@ -106,11 +107,15 @@ Description: ${userInfo.description || 'Not specified'}
 Preferred Contact: ${userInfo.preferredContactMethod || 'Not specified'}
 Contact Details: ${userInfo.contactDetails || 'Not specified'}`;
 
+      // Serialize data for JSON compatibility
+      const serializedUserInfo = JSON.parse(JSON.stringify(userInfo));
+      const serializedConversationHistory = JSON.parse(JSON.stringify(conversationHistory));
+
       const { error } = await supabase
         .from('inquiries')
         .insert({
           name: userInfo.name || 'AI Chat User',
-          email: userInfo.email || null,
+          email: userInfo.email || 'no-email@example.com',
           phone: userInfo.phone || null,
           inquiry_type: 'general' as const,
           inquiry_text: inquiryText,
@@ -119,8 +124,8 @@ Contact Details: ${userInfo.contactDetails || 'Not specified'}`;
           contact_preference_details: userInfo.contactDetails || null,
           metadata: {
             source: 'openrouter_ai_agent',
-            conversation_history: conversationHistory,
-            userInfo: JSON.parse(JSON.stringify(userInfo)),
+            conversation_history: serializedConversationHistory,
+            userInfo: serializedUserInfo,
             timestamp: new Date().toISOString()
           }
         });
