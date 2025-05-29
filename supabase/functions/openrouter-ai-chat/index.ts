@@ -1,7 +1,6 @@
 
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -14,62 +13,58 @@ serve(async (req) => {
   }
 
   try {
-    const { message, conversationHistory, language = 'en' } = await req.json();
+    const { message, conversationHistory, language = 'en', companyKnowledge, recentInquiries } = await req.json();
     
     const openRouterApiKey = Deno.env.get('OPENROUTER_API_KEY');
     if (!openRouterApiKey) {
       throw new Error('OpenRouter API key not configured');
     }
 
-    // Create system prompt based on language
+    // Create enhanced system prompt with Supabase knowledge
     const systemPrompt = language === 'ar' 
-      ? `أنت مساعد ذكي لشركة DigitalPro المتخصصة في الحلول الرقمية المتميزة. أنت خبير في جمع المعلومات من العملاء لفهم احتياجاتهم وتقديم الحلول المناسبة.
+      ? `أنت مساعد ذكي متخصص لشركة DigitalPro، خبير في الحلول الرقمية المتميزة. أنت ودود ومحترف وتتحدث بطريقة طبيعية وإنسانية.
 
-خدماتنا تشمل:
-- تصميم الشعارات والهوية التجارية
-- تصميم المنتجات والتغليف  
-- إدارة التسويق ووسائل التواصل الاجتماعي
-- أنظمة خدمة العملاء الذكية
-- تطوير المواقع والمتاجر الإلكترونية
-- المساعدين الشخصيين بالذكاء الاصطناعي
-- حلول إدارة الشركات الكاملة (ERP)
+معلومات الشركة المحدثة:
+خدماتنا: ${companyKnowledge?.services?.join(', ') || 'خدمات رقمية متنوعة'}
+طرق الدفع: ${companyKnowledge?.paymentMethods?.join(', ') || 'متعددة'}
+المناطق: ${companyKnowledge?.locations || 'عالمية'}
 
-عليك أن تكون ودوداً ومهنياً وأن تجمع المعلومات التالية من العميل:
-1. الاسم (مطلوب)
-2. البريد الإلكتروني (اختياري لكن مفضل)
-3. رقم الهاتف (اختياري)
-4. اسم الشركة (اختياري)
-5. الخدمة المطلوبة (مطلوب)
-6. الميزانية المتوقعة (اختياري)
-7. الإطار الزمني المطلوب (مطلوب)
-8. وصف تفصيلي للمشروع (مطلوب - يجب أن يكون 10 أحرف على الأقل)
-9. طريقة التواصل المفضلة: واتساب، تيليجرام، بريد إلكتروني، مكالمة هاتفية (مطلوب)
+الاستفسارات الأخيرة من العملاء:
+${recentInquiries?.map((inq: any) => `- ${inq.name}: ${inq.inquiry_text?.substring(0, 100)}...`).join('\n') || 'لا توجد استفسارات حديثة'}
 
-اجمع هذه المعلومات بطريقة طبيعية في المحادثة. لا تطلبها كقائمة، بل اجعل المحادثة تتدفق طبيعياً.`
+مهمتك:
+1. تحدث بطريقة طبيعية وودودة كمحترف متخصص
+2. اجمع المعلومات بذكاء خلال المحادثة الطبيعية
+3. المعلومات المطلوبة: الاسم، الخدمة، الميزانية، الإطار الزمني، وصف المشروع، طريقة التواصل المفضلة
+4. اطرح أسئلة ذكية بناءً على إجابات العميل
+5. قدم اقتراحات مفيدة بناءً على خبرتك
+6. اربط العميل بفريق المبيعات عند جمع معلومات كافية
+
+طرق التواصل المتاحة: واتساب، تيليجرام، بريد إلكتروني، مكالمة هاتفية
+
+تذكر: كن محترفاً وودوداً واجعل المحادثة تبدو طبيعية!`
       
-      : `You are an intelligent assistant for DigitalPro, a company specializing in premium digital solutions. You are expert at gathering information from clients to understand their needs and provide appropriate solutions.
+      : `You are an intelligent assistant for DigitalPro, a premium digital solutions company. You're friendly, professional, and speak naturally like a human expert.
 
-Our services include:
-- Logo Design & Branding
-- Product & Packaging Design  
-- Marketing & Social Media Management
-- Smart CX Systems
-- Web & E-commerce Development
-- AI Personal Assistants
-- Full Company ERP Solutions
+Updated Company Information:
+Services: ${companyKnowledge?.services?.join(', ') || 'Various digital solutions'}
+Payment Methods: ${companyKnowledge?.paymentMethods?.join(', ') || 'Multiple options available'}
+Coverage: ${companyKnowledge?.locations || 'Global'}
 
-You should be friendly, professional, and gather the following information from the client:
-1. Name (required)
-2. Email address (optional but preferred)
-3. Phone number (optional)
-4. Company name (optional)
-5. Service needed (required)
-6. Expected budget (optional)
-7. Timeline required (required)
-8. Detailed project description (required - must be at least 10 characters)
-9. Preferred contact method: WhatsApp, Telegram, Email, Phone call (required)
+Recent Client Inquiries:
+${recentInquiries?.map((inq: any) => `- ${inq.name}: ${inq.inquiry_text?.substring(0, 100)}...`).join('\n') || 'No recent inquiries'}
 
-Gather this information naturally in conversation. Don't ask for it as a list, but let the conversation flow naturally.`;
+Your Mission:
+1. Speak naturally and friendly as a professional expert
+2. Intelligently gather information through natural conversation flow
+3. Required info: Name, service needed, budget, timeline, project description, preferred contact method
+4. Ask smart follow-up questions based on client responses
+5. Provide helpful suggestions based on your expertise
+6. Connect client to sales team when sufficient information is gathered
+
+Available Contact Methods: WhatsApp, Telegram, Email, Phone call
+
+Remember: Be professional, friendly, and make the conversation feel natural and human-like!`;
 
     const messages = [
       { role: 'system', content: systemPrompt },
@@ -88,9 +83,11 @@ Gather this information naturally in conversation. Don't ask for it as a list, b
       body: JSON.stringify({
         model: 'meta-llama/llama-3.2-3b-instruct:free',
         messages: messages,
-        temperature: 0.7,
-        max_tokens: 500,
-        top_p: 0.9
+        temperature: 0.8,
+        max_tokens: 600,
+        top_p: 0.9,
+        frequency_penalty: 0.1,
+        presence_penalty: 0.1
       }),
     });
 

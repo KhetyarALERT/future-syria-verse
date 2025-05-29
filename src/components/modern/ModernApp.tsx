@@ -5,7 +5,6 @@ import ModernNavigation from './ModernNavigation';
 import ModernHero from './ModernHero';
 import QuoteModal from './QuoteModal';
 import ModernChat from './ModernChat';
-import ChatWidget from './ChatWidget';
 import AuthModal from '../auth/AuthModal';
 import { Toaster } from '@/components/ui/toaster';
 import { ArrowLeft, ArrowRight, User } from 'lucide-react';
@@ -115,15 +114,15 @@ const ModernApp: React.FC = () => {
         onChatNow={() => setIsChatOpen(true)}
       />
 
+      {/* Single Chat Widget - Only show when chat is not open */}
       {!isChatOpen && (
-        <div className="fixed bottom-6 right-6 z-40 flex items-center gap-3">
+        <div className="fixed bottom-6 right-6 z-40">
           <Button
             onClick={() => setIsChatOpen(true)}
-            className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white px-4 py-2 rounded-full shadow-lg hover:shadow-cyan-500/25 transition-all duration-300"
+            className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white px-6 py-3 rounded-full shadow-lg hover:shadow-cyan-500/25 transition-all duration-300 transform hover:scale-105"
           >
             {i18n.language === 'ar' ? 'ابدأ المحادثة' : 'Chat Now'}
           </Button>
-          <ChatWidget onClick={() => setIsChatOpen(true)} />
         </div>
       )}
 

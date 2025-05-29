@@ -35,11 +35,37 @@ export const useAdvancedAIAgent = () => {
     setIsLoading(true);
     
     try {
+      // Get recent inquiries and company knowledge from Supabase for context
+      const { data: recentInquiries } = await supabase
+        .from('inquiries')
+        .select('inquiry_text, name, inquiry_type')
+        .order('created_at', { ascending: false })
+        .limit(5);
+
+      const companyKnowledge = {
+        services: [
+          "Logo Design & Branding - Starting at $50, completed within 24-48 hours",
+          "Website Development - $200-$1000, modern responsive sites in 1-2 weeks",
+          "E-commerce Solutions - $500-$2000, complete online stores in 2-4 weeks",
+          "AI Personal Assistants - $10-$50/month, 24/7 customer support bots",
+          "Marketing & Social Media Management - Custom packages for brand growth",
+          "Smart CX Systems - Advanced customer experience solutions",
+          "Work Automation - Custom quotes, streamline business processes",
+          "Product & Packaging Design - Professional designs for physical products",
+          "Full Company ERP Solutions - Complete business management systems"
+        ],
+        paymentMethods: ["Stripe", "Bank transfers", "Local payment methods", "Cryptocurrency"],
+        languages: ["English", "Arabic"],
+        locations: "Global services with special focus on MENA region"
+      };
+
       const response = await supabase.functions.invoke('openrouter-ai-chat', {
         body: {
           message: userMessage,
           conversationHistory: conversationHistory,
-          language: i18n.language
+          language: i18n.language,
+          companyKnowledge,
+          recentInquiries: recentInquiries || []
         }
       });
 
@@ -56,8 +82,8 @@ export const useAdvancedAIAgent = () => {
         { role: 'assistant', content: aiResponse }
       ]);
 
-      // Try to extract information from the conversation
-      extractUserInfo(userMessage, aiResponse);
+      // Extract information from the conversation
+      await extractUserInfo(userMessage, aiResponse);
 
       return aiResponse;
     } catch (error) {
@@ -70,63 +96,106 @@ export const useAdvancedAIAgent = () => {
     }
   };
 
-  const extractUserInfo = (userMessage: string, aiResponse: string) => {
+  const extractUserInfo = async (userMessage: string, aiResponse: string) => {
     const lowerMessage = userMessage.toLowerCase();
+    const newInfo: UserInfo = { ...userInfo };
     
-    // Simple extraction logic - you can make this more sophisticated
+    // Enhanced extraction logic
     if (lowerMessage.includes('@') && !userInfo.email) {
       const emailMatch = userMessage.match(/\S+@\S+\.\S+/);
       if (emailMatch) {
-        setUserInfo(prev => ({ ...prev, email: emailMatch[0] }));
+        newInfo.email = emailMatch[0];
       }
     }
 
-    // Extract phone numbers
-    const phoneMatch = userMessage.match(/[\+]?[\d\s\-\(\)]{8,}/);
+    // Extract phone numbers (more comprehensive pattern)
+    const phoneMatch = userMessage.match(/(?:\+?[\d\s\-\(\)]{8,})/);
     if (phoneMatch && !userInfo.phone) {
-      setUserInfo(prev => ({ ...prev, phone: phoneMatch[0] }));
+      newInfo.phone = phoneMatch[0].trim();
     }
 
-    // Check if AI is asking to save information
-    if (aiResponse.toLowerCase().includes('save') || aiResponse.toLowerCase().includes('submit') || 
-        aiResponse.toLowerCase().includes('حفظ') || aiResponse.toLowerCase().includes('إرسال')) {
-      // If we have enough info, save to database
-      if (userInfo.name && userInfo.description && userInfo.description.length >= 10) {
-        saveToSupabase();
+    // Extract names from "I'm [name]" or "My name is [name]"
+    const nameMatch = userMessage.match(/(?:i'm|my name is|i am)\s+([a-zA-Z\s]+)/i);
+    if (nameMatch && !userInfo.name) {
+      newInfo.name = nameMatch[1].trim();
+    }
+
+    // Extract company names
+    const companyMatch = userMessage.match(/(?:company|business|work at|from)\s+([a-zA-Z\s&\.]+)/i);
+    if (companyMatch && !userInfo.company) {
+      newInfo.company = companyMatch[1].trim();
+    }
+
+    // Extract contact preferences
+    const contactMethods = ['whatsapp', 'telegram', 'email', 'phone', 'call'];
+    for (const method of contactMethods) {
+      if (lowerMessage.includes(method) && !userInfo.preferredContactMethod) {
+        newInfo.preferredContactMethod = method;
+        // Extract contact details if mentioned
+        if (method === 'whatsapp' || method === 'telegram') {
+          const contactMatch = userMessage.match(/(\+?[\d\s\-\(\)]{8,})/);
+          if (contactMatch) {
+            newInfo.contactDetails = contactMatch[0].trim();
+          }
+        }
+        break;
       }
+    }
+
+    // Update user info if new information was found
+    if (JSON.stringify(newInfo) !== JSON.stringify(userInfo)) {
+      setUserInfo(newInfo);
+    }
+
+    // Check if AI suggests saving or if we have enough info
+    const shouldSave = (
+      aiResponse.toLowerCase().includes('save') || 
+      aiResponse.toLowerCase().includes('submit') || 
+      aiResponse.toLowerCase().includes('حفظ') || 
+      aiResponse.toLowerCase().includes('إرسال') ||
+      (newInfo.name && newInfo.description && newInfo.description.length >= 10)
+    );
+
+    if (shouldSave && newInfo.name && (newInfo.description || conversationHistory.length >= 4)) {
+      await saveToSupabase(newInfo);
     }
   };
 
-  const saveToSupabase = async () => {
+  const saveToSupabase = async (info: UserInfo = userInfo) => {
     try {
-      const inquiryText = `Service: ${userInfo.serviceNeeded || 'Not specified'}
-Budget: ${userInfo.budget || 'Not specified'}  
-Timeline: ${userInfo.timeline || 'Not specified'}
-Company: ${userInfo.company || 'Not specified'}
-Description: ${userInfo.description || 'Not specified'}
-Preferred Contact: ${userInfo.preferredContactMethod || 'Not specified'}
-Contact Details: ${userInfo.contactDetails || 'Not specified'}`;
+      const inquiryText = `Service: ${info.serviceNeeded || 'Not specified'}
+Budget: ${info.budget || 'Not specified'}  
+Timeline: ${info.timeline || 'Not specified'}
+Company: ${info.company || 'Not specified'}
+Description: ${info.description || 'Gathered from conversation'}
+Preferred Contact: ${info.preferredContactMethod || 'Not specified'}
+Contact Details: ${info.contactDetails || 'Not specified'}
+
+Conversation Summary:
+${conversationHistory.map(msg => `${msg.role}: ${msg.content}`).join('\n')}`;
 
       // Serialize data for JSON compatibility
-      const serializedUserInfo = JSON.parse(JSON.stringify(userInfo));
+      const serializedUserInfo = JSON.parse(JSON.stringify(info));
       const serializedConversationHistory = JSON.parse(JSON.stringify(conversationHistory));
 
       const { error } = await supabase
         .from('inquiries')
         .insert({
-          name: userInfo.name || 'AI Chat User',
-          email: userInfo.email || 'no-email@example.com',
-          phone: userInfo.phone || null,
+          name: info.name || 'AI Chat User',
+          email: info.email || 'no-email@example.com',
+          phone: info.phone || null,
           inquiry_type: 'general' as const,
           inquiry_text: inquiryText,
           language: i18n.language,
-          preferred_contact_method: userInfo.preferredContactMethod || null,
-          contact_preference_details: userInfo.contactDetails || null,
+          preferred_contact_method: info.preferredContactMethod || null,
+          contact_preference_details: info.contactDetails || null,
           metadata: {
             source: 'openrouter_ai_agent',
             conversation_history: serializedConversationHistory,
             userInfo: serializedUserInfo,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
+            conversation_length: conversationHistory.length,
+            ai_collected: true
           }
         });
 
@@ -153,7 +222,7 @@ Contact Details: ${userInfo.contactDetails || 'Not specified'}`;
 
   const manualSave = async (info: UserInfo) => {
     setUserInfo(info);
-    await saveToSupabase();
+    await saveToSupabase(info);
   };
 
   return {
