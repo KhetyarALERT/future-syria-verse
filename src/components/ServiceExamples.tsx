@@ -5,15 +5,10 @@ import { useTranslation } from 'react-i18next';
 import { X, MessageCircle, FileText, TrendingUp, Image as ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
+import type { Tables } from '@/integrations/supabase/types';
 
-interface ServiceExample {
-  id: string;
-  service_type: string;
-  title: string;
-  content: any;
-  example_type: 'chat' | 'image' | 'graph' | 'demo';
-  language: string;
-}
+// Use the Supabase generated type directly
+type ServiceExample = Tables<'service_examples'>;
 
 interface ServiceExamplesProps {
   serviceKey: string;
