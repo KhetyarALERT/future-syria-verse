@@ -168,7 +168,7 @@ const ModernHero: React.FC<ModernHeroProps> = ({
             }} whileHover={{
               y: -5,
               scale: 1.02
-            }} onClick={() => handleServiceClick(service.key)} className=".services-card {\n  background-color: #2a3b4c;\n  color: #ffffff;\n}\n\n.services-card:hover {\n  background-color: #3a4b5c;\n}\n\n.services-card .icon {\n  color: #00c4ff;\n}">
+            }} onClick={() => handleServiceClick(service.key)} className="div {\n  margin: 0 0;\n  padding: 20px;\n  background: linear-gradient(135deg, #1e3a8a 0%, #1e1e2f 100%);\n  border-radius: 20px;\n  border: 1px solid #00d4ff;\n  box-shadow: 0 0 15px rgba(0, 212, 255, 0.5);\n  display: grid;\n  grid-template-columns: repeat(3, 1fr); /* Forces 3 columns */\n  gap: 24px;\n  max-width: 72rem;\n  margin-left: auto;\n  margin-right: auto;\n  transition: transform 0.3s ease, box-shadow 0.3s ease;\n}\n\ndiv:hover {\n  transform: translateY(-5px);\n  box-shadow: 0 0 25px rgba(0, 212, 255, 0.8);\n}\n\ndiv > div {\n  background: rgba(255, 255, 255, 0.05);\n  border: 1px solid #00d4ff;\n  padding: 15px;\n  border-radius: 15px;\n  transition: background 0.3s ease;\n}\n\ndiv > div:hover {\n  background: rgba(255, 255, 255, 0.1);\n}">
                   <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${service.gradient} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
                     <Icon className="w-6 h-6 text-white" />
                   </div>
