@@ -5,8 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { X, Send, Paperclip, Bot, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useToast } from '@/hooks/use-toast';
-import { useIntelligentAgent } from './IntelligentChatAgent';
+import { useAdvancedAIAgent } from '@/hooks/useAdvancedAIAgent';
 
 interface Message {
   id: string;
@@ -23,19 +22,19 @@ interface ModernChatProps {
 
 const ModernChat: React.FC<ModernChatProps> = ({ isOpen, onClose }) => {
   const { t, i18n } = useTranslation();
-  const { toast } = useToast();
-  const { getAIResponse, userInfo, isCollectingInfo } = useIntelligentAgent();
+  const { sendMessageToAI, isLoading } = useAdvancedAIAgent();
   
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      content: "Hello! Welcome to DigitalPro - your premium digital solutions partner. I'm your intelligent assistant and I'm here to understand your needs and connect you with our expert team. How can I help you today?",
+      content: i18n.language === 'ar' 
+        ? "مرحباً! أهلاً بك في DigitalPro - شريكك في الحلول الرقمية المتميزة. أنا مساعدك الذكي وأنا هنا لفهم احتياجاتك وربطك بفريق الخبراء لدينا. كيف يمكنني مساعدتك اليوم؟"
+        : "Hello! Welcome to DigitalPro - your premium digital solutions partner. I'm your intelligent assistant and I'm here to understand your needs and connect you with our expert team. How can I help you today?",
       sender: 'bot',
       timestamp: new Date()
     }
   ]);
   const [input, setInput] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -50,7 +49,7 @@ const ModernChat: React.FC<ModernChatProps> = ({ isOpen, onClose }) => {
   }, [messages]);
 
   const handleSendMessage = async () => {
-    if (!input.trim()) return;
+    if (!input.trim() || isLoading) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -61,22 +60,18 @@ const ModernChat: React.FC<ModernChatProps> = ({ isOpen, onClose }) => {
 
     setMessages(prev => [...prev, userMessage]);
     setInput('');
-    setIsTyping(true);
 
-    // Get AI response using intelligent agent
-    setTimeout(() => {
-      const aiResponse = getAIResponse(input, messages);
-      
-      const botResponse: Message = {
-        id: (Date.now() + 1).toString(),
-        content: aiResponse,
-        sender: 'bot',
-        timestamp: new Date()
-      };
-      
-      setMessages(prev => [...prev, botResponse]);
-      setIsTyping(false);
-    }, 1000 + Math.random() * 1500);
+    // Get AI response
+    const aiResponse = await sendMessageToAI(input);
+    
+    const botResponse: Message = {
+      id: (Date.now() + 1).toString(),
+      content: aiResponse,
+      sender: 'bot',
+      timestamp: new Date()
+    };
+    
+    setMessages(prev => [...prev, botResponse]);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -89,20 +84,34 @@ const ModernChat: React.FC<ModernChatProps> = ({ isOpen, onClose }) => {
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length > 0) {
-      toast({
-        title: "File uploaded successfully",
-        description: "Our team will review your file with your inquiry.",
-      });
+      // For now, just show a message about file upload
+      const fileMessage: Message = {
+        id: Date.now().toString(),
+        content: i18n.language === 'ar' 
+          ? `تم رفع الملف: ${files[0].name}. سيتم مراجعته مع استفسارك.`
+          : `File uploaded: ${files[0].name}. It will be reviewed with your inquiry.`,
+        sender: 'bot',
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, fileMessage]);
     }
   };
 
-  const quickQuestions = [
-    "I need a logo design",
-    "Website development quote",
-    "Marketing services",
-    "E-commerce solution",
-    "Full branding package"
-  ];
+  const quickQuestions = i18n.language === 'ar' 
+    ? [
+        "أحتاج تصميم شعار",
+        "عرض سعر لموقع إلكتروني",
+        "خدمات التسويق",
+        "حل متجر إلكتروني",
+        "باقة هوية تجارية كاملة"
+      ]
+    : [
+        "I need a logo design",
+        "Website development quote", 
+        "Marketing services",
+        "E-commerce solution",
+        "Full branding package"
+      ];
 
   return (
     <AnimatePresence>
@@ -121,10 +130,13 @@ const ModernChat: React.FC<ModernChatProps> = ({ isOpen, onClose }) => {
               </div>
               <div>
                 <h2 className="text-lg font-semibold text-white">
-                  DigitalPro Assistant
+                  {i18n.language === 'ar' ? 'مساعد DigitalPro' : 'DigitalPro Assistant'}
                 </h2>
                 <p className="text-sm text-gray-400">
-                  {isCollectingInfo ? 'Collecting your requirements...' : 'Online • Responds instantly'}
+                  {isLoading 
+                    ? (i18n.language === 'ar' ? 'يكتب...' : 'Typing...')
+                    : (i18n.language === 'ar' ? 'متصل • يرد فوراً' : 'Online • Responds instantly')
+                  }
                 </p>
               </div>
             </div>
@@ -174,7 +186,7 @@ const ModernChat: React.FC<ModernChatProps> = ({ isOpen, onClose }) => {
               </motion.div>
             ))}
 
-            {isTyping && (
+            {isLoading && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -235,12 +247,13 @@ const ModernChat: React.FC<ModernChatProps> = ({ isOpen, onClose }) => {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder={isCollectingInfo ? "Please provide the requested information..." : "Type your message..."}
+                placeholder={i18n.language === 'ar' ? "اكتب رسالتك..." : "Type your message..."}
                 className="flex-1 bg-slate-800 border-slate-600 text-white placeholder:text-gray-400"
+                disabled={isLoading}
               />
               <Button
                 onClick={handleSendMessage}
-                disabled={!input.trim() || isTyping}
+                disabled={!input.trim() || isLoading}
                 className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700"
               >
                 <Send className="w-4 h-4" />

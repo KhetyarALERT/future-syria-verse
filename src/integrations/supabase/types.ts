@@ -9,6 +9,47 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      admin_notifications: {
+        Row: {
+          created_at: string
+          id: string
+          inquiry_id: string | null
+          is_read: boolean
+          message: string
+          notification_type: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          inquiry_id?: string | null
+          is_read?: boolean
+          message: string
+          notification_type?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          inquiry_id?: string | null
+          is_read?: boolean
+          message?: string
+          notification_type?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_notifications_inquiry_id_fkey"
+            columns: ["inquiry_id"]
+            isOneToOne: false
+            referencedRelation: "inquiries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chat_sessions: {
         Row: {
           created_at: string
@@ -49,6 +90,7 @@ export type Database = {
       }
       inquiries: {
         Row: {
+          contact_preference_details: string | null
           created_at: string
           email: string
           id: string
@@ -58,10 +100,12 @@ export type Database = {
           metadata: Json | null
           name: string
           phone: string | null
+          preferred_contact_method: string | null
           status: Database["public"]["Enums"]["inquiry_status"]
           updated_at: string
         }
         Insert: {
+          contact_preference_details?: string | null
           created_at?: string
           email: string
           id?: string
@@ -71,10 +115,12 @@ export type Database = {
           metadata?: Json | null
           name: string
           phone?: string | null
+          preferred_contact_method?: string | null
           status?: Database["public"]["Enums"]["inquiry_status"]
           updated_at?: string
         }
         Update: {
+          contact_preference_details?: string | null
           created_at?: string
           email?: string
           id?: string
@@ -84,6 +130,7 @@ export type Database = {
           metadata?: Json | null
           name?: string
           phone?: string | null
+          preferred_contact_method?: string | null
           status?: Database["public"]["Enums"]["inquiry_status"]
           updated_at?: string
         }
