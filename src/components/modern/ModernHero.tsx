@@ -153,7 +153,7 @@ const ModernHero: React.FC<ModernHeroProps> = ({
             </span>
           </p>
 
-          <div className="div {\n  margin: 0 0;\n  padding: 0 0;\n  background: #2a3b4c;\n  border-radius: 15px;\n  display: grid;\n  grid-template-columns: 1fr;\n  gap: 6px;\n}\n@media (min-width: 768px) {\n  div {\n    grid-template-columns: repeat(2, 1fr);\n    gap: 24px;\n  }\n}\n@media (min-width: 1024px) {\n  div {\n    grid-template-columns: repeat(3, 1fr);\n    gap: 24px;\n    max-width: 72rem;\n    margin-left: auto;\n    margin-right: auto;\n  }\n}">
+          <div className="div {\n  margin: 0 0;\n  padding: 20px;\n  background: linear-gradient(135deg, #1e3a8a 0%, #1e1e2f 100%);\n  border-radius: 20px;\n  border: 1px solid #00d4ff;\n  box-shadow: 0 0 15px rgba(0, 212, 255, 0.5);\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));\n  gap: 24px;\n  max-width: 72rem;\n  margin-left: auto;\n  margin-right: auto;\n  transition: transform 0.3s ease, box-shadow 0.3s ease;\n}\n\ndiv:hover {\n  transform: translateY(-5px);\n  box-shadow: 0 0 25px rgba(0, 212, 255, 0.8);\n}\n\ndiv > div {\n  background: -webkit-box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.1);\n  border: 1px solid #00d4ff;\n  padding: 15px;\n  border-radius: 15px;\n  transition: background 0.3s ease;\n}\n\ndiv > div:hover {\n  background: rgba(255, 255, 255, 0.05);\n}">
             {services.map((service, index) => {
             const Icon = service.icon;
             return <motion.div key={service.key} initial={{
