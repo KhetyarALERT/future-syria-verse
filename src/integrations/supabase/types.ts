@@ -136,6 +136,39 @@ export type Database = {
         }
         Relationships: []
       }
+      service_examples: {
+        Row: {
+          content: Json
+          created_at: string
+          example_type: string
+          id: string
+          language: string
+          service_type: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content: Json
+          created_at?: string
+          example_type: string
+          id?: string
+          language?: string
+          service_type: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          content?: Json
+          created_at?: string
+          example_type?: string
+          id?: string
+          language?: string
+          service_type?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       support_requests: {
         Row: {
           created_at: string

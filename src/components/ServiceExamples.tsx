@@ -2,8 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { X, MessageCircle, FileText } from 'lucide-react';
+import { X, MessageCircle, FileText, TrendingUp, Image as ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ServiceExample {
   id: string;
@@ -33,92 +34,31 @@ const ServiceExamples: React.FC<ServiceExamplesProps> = ({
 
   useEffect(() => {
     if (isOpen && serviceKey) {
-      // Load default examples since we don't have a service_examples table yet
-      setLoading(true);
-      setExamples(getDefaultExamples());
-      setLoading(false);
+      fetchServiceExamples();
     }
   }, [isOpen, serviceKey, i18n.language]);
 
-  const getDefaultExamples = (): ServiceExample[] => {
-    const isArabic = i18n.language === 'ar';
-    
-    const defaultExamples: { [key: string]: ServiceExample } = {
-      personalAssistant: {
-        id: '1',
-        service_type: 'personalAssistant',
-        title: isArabic ? 'مساعد شخصي ذكي' : 'Personal AI Assistant',
-        content: {
-          messages: [
-            {
-              sender: 'user',
-              text: isArabic ? 'مرحبا، هل يمكنك تنظيم يومي؟' : 'Hi, can you help organize my day?'
-            },
-            {
-              sender: 'ai',
-              text: isArabic ? 'بالتأكيد! لقد جدولت اجتماعك في الساعة 10 صباحاً وحجزت وقتاً من 2 إلى 4 عصراً لمشروع التقرير. هل تحتاج مني ترتيب أي شيء آخر؟' : 'Absolutely! I\'ve scheduled your 10 AM meeting and blocked 2-4 PM for your report project. Do you need me to arrange anything else?'
-            },
-            {
-              sender: 'user',
-              text: isArabic ? 'ممتاز! هل يمكنك تذكيري بمراجعة الإيميلات؟' : 'Perfect! Can you remind me to check emails?'
-            },
-            {
-              sender: 'ai',
-              text: isArabic ? 'تم إضافة تذكير لمراجعة الإيميلات في الساعة 9 صباحاً و 5 مساءً. يومك منظم بالكامل!' : 'Added email check reminders for 9 AM and 5 PM. Your day is all set!'
-            }
-          ]
-        },
-        example_type: 'chat',
-        language: i18n.language
-      },
-      agenticAgent: {
-        id: '2',
-        service_type: 'agenticAgent',
-        title: isArabic ? 'وكيل ذكي متقدم' : 'Advanced Agentic Agent',
-        content: {
-          description: isArabic ? 'نظام ذكي يدير المهام تلقائياً ويحسن كفاءة العمل بنسبة تصل إلى 75%' : 'Smart system that manages tasks automatically and improves work efficiency by up to 75%',
-          benefits: [
-            isArabic ? 'أتمتة المهام المتكررة' : 'Automate repetitive tasks',
-            isArabic ? 'تحليل البيانات الفوري' : 'Real-time data analysis',
-            isArabic ? 'تقارير ذكية تلقائية' : 'Automated intelligent reports'
-          ]
-        },
-        example_type: 'demo',
-        language: i18n.language
-      },
-      logoDesign: {
-        id: '3',
-        service_type: 'logoDesign',
-        title: isArabic ? 'تصميم الشعارات' : 'Logo Design',
-        content: {
-          description: isArabic ? 'شعارات احترافية تعكس هوية علامتك التجارية بتصاميم عصرية ومميزة' : 'Professional logos that reflect your brand identity with modern and distinctive designs',
-          benefits: [
-            isArabic ? 'تصاميم حصرية ومبتكرة' : 'Exclusive and innovative designs',
-            isArabic ? 'ملفات عالية الجودة لجميع الاستخدامات' : 'High-quality files for all uses',
-            isArabic ? 'مراجعات مجانية حتى الرضا التام' : 'Free revisions until complete satisfaction'
-          ]
-        },
-        example_type: 'demo',
-        language: i18n.language
-      },
-      webDevelopment: {
-        id: '4',
-        service_type: 'webDevelopment',
-        title: isArabic ? 'تطوير المواقع' : 'Web Development',
-        content: {
-          description: isArabic ? 'مواقع ويب حديثة وسريعة مع تصميم متجاوب وتجربة مستخدم مثالية' : 'Modern and fast websites with responsive design and optimal user experience',
-          benefits: [
-            isArabic ? 'تصميم متجاوب لجميع الأجهزة' : 'Responsive design for all devices',
-            isArabic ? 'أداء سريع ومحسن لمحركات البحث' : 'Fast performance and SEO optimized',
-            isArabic ? 'لوحة تحكم سهلة الاستخدام' : 'Easy-to-use admin panel'
-          ]
-        },
-        example_type: 'demo',
-        language: i18n.language
-      }
-    };
+  const fetchServiceExamples = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('service_examples')
+        .select('*')
+        .eq('service_type', serviceKey)
+        .eq('language', i18n.language);
 
-    return [defaultExamples[serviceKey] || defaultExamples.personalAssistant];
+      if (error) {
+        console.error('Error fetching examples:', error);
+        setExamples([]);
+      } else {
+        setExamples(data || []);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      setExamples([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const renderChatExample = (content: any) => (
@@ -137,8 +77,12 @@ const ServiceExamples: React.FC<ServiceExamplesProps> = ({
     </div>
   );
 
-  const renderDemoExample = (content: any) => (
+  const renderImageExample = (content: any) => (
     <div className="space-y-4">
+      <div className="bg-gradient-to-br from-blue-50 to-purple-50 p-6 rounded-lg border-2 border-dashed border-blue-200 text-center">
+        <ImageIcon className="w-16 h-16 mx-auto text-blue-500 mb-4" />
+        <p className="text-gray-600 font-medium">{content.image_description}</p>
+      </div>
       <p className="text-gray-600">{content.description}</p>
       {content.benefits && (
         <ul className="space-y-2">
@@ -152,6 +96,158 @@ const ServiceExamples: React.FC<ServiceExamplesProps> = ({
       )}
     </div>
   );
+
+  const renderGraphExample = (content: any) => (
+    <div className="space-y-4">
+      <p className="text-gray-600">{content.description}</p>
+      
+      {content.graph_data && (
+        <div className="bg-white p-4 rounded-lg border">
+          <h4 className="text-lg font-semibold mb-4 text-center">{content.graph_data.title}</h4>
+          <div className="space-y-2">
+            {content.graph_data.data.map((item: any, index: number) => (
+              <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                <span className="font-medium">{item.month}</span>
+                <div className="flex items-center space-x-4">
+                  <div className="flex items-center">
+                    <TrendingUp className="w-4 h-4 text-blue-500 mr-1" />
+                    <span className="text-sm">{item.conversions} conversions</span>
+                  </div>
+                  <div className="text-green-600 font-semibold">{item.roi}% ROI</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {content.benefits && (
+        <ul className="space-y-2">
+          {content.benefits.map((benefit: string, index: number) => (
+            <li key={index} className="flex items-center text-sm text-gray-700">
+              <div className="w-2 h-2 bg-green-500 rounded-full mr-3" />
+              {benefit}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+
+  const renderDemoExample = (content: any) => (
+    <div className="space-y-4">
+      <p className="text-gray-600">{content.description}</p>
+
+      {/* Social Media Mock Post */}
+      {content.mock_post && (
+        <div className="bg-white border rounded-lg p-4 shadow-sm">
+          <div className="flex items-center mb-3">
+            <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+              <span className="text-white text-xs font-bold">DP</span>
+            </div>
+            <div className="ml-3">
+              <p className="font-semibold text-sm">DigitalPro</p>
+              <p className="text-xs text-gray-500">{content.mock_post.platform}</p>
+            </div>
+          </div>
+          <p className="text-sm mb-3">{content.mock_post.content}</p>
+          <div className="flex space-x-4 text-xs text-gray-500">
+            <span>❤️ {content.mock_post.engagement.likes}</span>
+            <span>💬 {content.mock_post.engagement.comments}</span>
+            <span>🔄 {content.mock_post.engagement.shares}</span>
+          </div>
+        </div>
+      )}
+
+      {/* Flowchart for Smart CX */}
+      {content.flowchart && (
+        <div className="space-y-3">
+          <h4 className="font-semibold">Customer Experience Flow:</h4>
+          <div className="space-y-2">
+            {content.flowchart.steps.map((step: string, index: number) => (
+              <div key={index} className="flex items-center">
+                <div className="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-semibold mr-3">
+                  {index + 1}
+                </div>
+                <span className="text-sm">{step}</span>
+                {index < content.flowchart.steps.length - 1 && (
+                  <div className="ml-4 text-blue-400">→</div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ERP Modules */}
+      {content.modules && (
+        <div className="space-y-3">
+          <h4 className="font-semibold">System Modules:</h4>
+          <div className="grid grid-cols-2 gap-2">
+            {content.modules.map((module: string, index: number) => (
+              <div key={index} className="bg-blue-50 p-2 rounded text-sm text-center">
+                {module}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Features List */}
+      {content.features && (
+        <ul className="space-y-2">
+          {content.features.map((feature: string, index: number) => (
+            <li key={index} className="flex items-center text-sm text-gray-700">
+              <div className="w-2 h-2 bg-green-500 rounded-full mr-3" />
+              {feature}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {/* Benefits List */}
+      {content.benefits && (
+        <ul className="space-y-2">
+          {content.benefits.map((benefit: string, index: number) => (
+            <li key={index} className="flex items-center text-sm text-gray-700">
+              <div className="w-2 h-2 bg-green-500 rounded-full mr-3" />
+              {benefit}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {/* Dashboard Features */}
+      {content.dashboard_features && (
+        <div className="space-y-3">
+          <h4 className="font-semibold">Dashboard Features:</h4>
+          <ul className="space-y-2">
+            {content.dashboard_features.map((feature: string, index: number) => (
+              <li key={index} className="flex items-center text-sm text-gray-700">
+                <div className="w-2 h-2 bg-purple-500 rounded-full mr-3" />
+                {feature}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+
+  const renderExample = (example: ServiceExample) => {
+    switch (example.example_type) {
+      case 'chat':
+        return renderChatExample(example.content);
+      case 'image':
+        return renderImageExample(example.content);
+      case 'graph':
+        return renderGraphExample(example.content);
+      case 'demo':
+        return renderDemoExample(example.content);
+      default:
+        return <p>Example type not supported</p>;
+    }
+  };
 
   return (
     <AnimatePresence>
@@ -179,17 +275,20 @@ const ServiceExamples: React.FC<ServiceExamplesProps> = ({
               </Button>
             </div>
 
-            <div className="p-6">
+            <div className="p-6 overflow-y-auto max-h-[50vh]">
               {loading ? (
                 <div className="flex items-center justify-center py-8">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+                </div>
+              ) : examples.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-gray-500">No examples available for this service.</p>
                 </div>
               ) : (
                 <div className="space-y-6">
                   {examples.map((example) => (
                     <div key={example.id}>
-                      {example.example_type === 'chat' && renderChatExample(example.content)}
-                      {example.example_type === 'demo' && renderDemoExample(example.content)}
+                      {renderExample(example)}
                     </div>
                   ))}
                 </div>
