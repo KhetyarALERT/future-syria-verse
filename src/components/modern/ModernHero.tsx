@@ -168,7 +168,7 @@ const ModernHero: React.FC<ModernHeroProps> = ({
             }} whileHover={{
               y: -5,
               scale: 1.02
-            }} className="group p-6 bg-slate-900/50 backdrop-blur-sm border border-slate-800 rounded-2xl hover:border-cyan-500/50 transition-all duration-300 cursor-pointer" onClick={() => handleServiceClick(service.key)}>
+            }} onClick={() => handleServiceClick(service.key)} className=".services-card {\n  background-color: #2a3b4c;\n  color: #ffffff;\n}\n\n.services-card:hover {\n  background-color: #3a4b5c;\n}\n\n.services-card .icon {\n  color: #00c4ff;\n}">
                   <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${service.gradient} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
                     <Icon className="w-6 h-6 text-white" />
                   </div>
