@@ -153,7 +153,7 @@ const ModernHero: React.FC<ModernHeroProps> = ({
             </span>
           </p>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+          <div className="div {\n  margin: 0 0;\n  padding: 0 0;\n  background: #2a3b4c;\n  border-radius: 15px;\n  display: grid;\n  grid-template-columns: 1fr;\n  gap: 6px;\n}\n@media (min-width: 768px) {\n  div {\n    grid-template-columns: repeat(2, 1fr);\n    gap: 24px;\n  }\n}\n@media (min-width: 1024px) {\n  div {\n    grid-template-columns: repeat(3, 1fr);\n    gap: 24px;\n    max-width: 72rem;\n    margin-left: auto;\n    margin-right: auto;\n  }\n}">
             {services.map((service, index) => {
             const Icon = service.icon;
             return <motion.div key={service.key} initial={{
