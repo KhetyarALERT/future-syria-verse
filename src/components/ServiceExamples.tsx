@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { X, MessageCircle, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { supabase } from '@/integrations/supabase/client';
 
 interface ServiceExample {
   id: string;
@@ -34,33 +33,12 @@ const ServiceExamples: React.FC<ServiceExamplesProps> = ({
 
   useEffect(() => {
     if (isOpen && serviceKey) {
-      fetchServiceExamples();
-    }
-  }, [isOpen, serviceKey, i18n.language]);
-
-  const fetchServiceExamples = async () => {
-    setLoading(true);
-    try {
-      const { data, error } = await supabase
-        .from('service_examples')
-        .select('*')
-        .eq('service_type', serviceKey)
-        .eq('language', i18n.language);
-
-      if (error) {
-        console.error('Error fetching examples:', error);
-        // Fallback to default examples if database doesn't have data
-        setExamples(getDefaultExamples());
-      } else {
-        setExamples(data || getDefaultExamples());
-      }
-    } catch (error) {
-      console.error('Error:', error);
+      // Load default examples since we don't have a service_examples table yet
+      setLoading(true);
       setExamples(getDefaultExamples());
-    } finally {
       setLoading(false);
     }
-  };
+  }, [isOpen, serviceKey, i18n.language]);
 
   const getDefaultExamples = (): ServiceExample[] => {
     const isArabic = i18n.language === 'ar';
@@ -103,6 +81,36 @@ const ServiceExamples: React.FC<ServiceExamplesProps> = ({
             isArabic ? 'أتمتة المهام المتكررة' : 'Automate repetitive tasks',
             isArabic ? 'تحليل البيانات الفوري' : 'Real-time data analysis',
             isArabic ? 'تقارير ذكية تلقائية' : 'Automated intelligent reports'
+          ]
+        },
+        example_type: 'demo',
+        language: i18n.language
+      },
+      logoDesign: {
+        id: '3',
+        service_type: 'logoDesign',
+        title: isArabic ? 'تصميم الشعارات' : 'Logo Design',
+        content: {
+          description: isArabic ? 'شعارات احترافية تعكس هوية علامتك التجارية بتصاميم عصرية ومميزة' : 'Professional logos that reflect your brand identity with modern and distinctive designs',
+          benefits: [
+            isArabic ? 'تصاميم حصرية ومبتكرة' : 'Exclusive and innovative designs',
+            isArabic ? 'ملفات عالية الجودة لجميع الاستخدامات' : 'High-quality files for all uses',
+            isArabic ? 'مراجعات مجانية حتى الرضا التام' : 'Free revisions until complete satisfaction'
+          ]
+        },
+        example_type: 'demo',
+        language: i18n.language
+      },
+      webDevelopment: {
+        id: '4',
+        service_type: 'webDevelopment',
+        title: isArabic ? 'تطوير المواقع' : 'Web Development',
+        content: {
+          description: isArabic ? 'مواقع ويب حديثة وسريعة مع تصميم متجاوب وتجربة مستخدم مثالية' : 'Modern and fast websites with responsive design and optimal user experience',
+          benefits: [
+            isArabic ? 'تصميم متجاوب لجميع الأجهزة' : 'Responsive design for all devices',
+            isArabic ? 'أداء سريع ومحسن لمحركات البحث' : 'Fast performance and SEO optimized',
+            isArabic ? 'لوحة تحكم سهلة الاستخدام' : 'Easy-to-use admin panel'
           ]
         },
         example_type: 'demo',
