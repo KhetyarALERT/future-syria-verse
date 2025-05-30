@@ -50,6 +50,30 @@ export type Database = {
           },
         ]
       }
+      ai_chat_config: {
+        Row: {
+          config_key: string
+          config_value: Json
+          created_at: string | null
+          id: string
+          updated_at: string | null
+        }
+        Insert: {
+          config_key: string
+          config_value: Json
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+        }
+        Update: {
+          config_key?: string
+          config_value?: Json
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       chat_sessions: {
         Row: {
           created_at: string
@@ -136,6 +160,24 @@ export type Database = {
         }
         Relationships: []
       }
+      n8n_chat_histories: {
+        Row: {
+          id: number
+          message: Json
+          session_id: string
+        }
+        Insert: {
+          id?: number
+          message: Json
+          session_id: string
+        }
+        Update: {
+          id?: number
+          message?: Json
+          session_id?: string
+        }
+        Relationships: []
+      }
       service_examples: {
         Row: {
           content: Json
@@ -146,6 +188,7 @@ export type Database = {
           service_type: string
           title: string
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           content: Json
@@ -156,6 +199,7 @@ export type Database = {
           service_type: string
           title: string
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           content?: Json
@@ -166,6 +210,7 @@ export type Database = {
           service_type?: string
           title?: string
           updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -204,12 +249,48 @@ export type Database = {
           },
         ]
       }
+      user_chat_sessions: {
+        Row: {
+          created_at: string | null
+          id: string
+          lead_score: number | null
+          lead_status: string | null
+          messages: Json | null
+          session_id: string
+          updated_at: string | null
+          user_data: Json | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          lead_score?: number | null
+          lead_status?: string | null
+          messages?: Json | null
+          session_id: string
+          updated_at?: string | null
+          user_data?: Json | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          lead_score?: number | null
+          lead_status?: string | null
+          messages?: Json | null
+          session_id?: string
+          updated_at?: string | null
+          user_data?: Json | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      update_updated_at_column: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
     }
     Enums: {
       inquiry_status: "new" | "in_progress" | "resolved" | "closed"

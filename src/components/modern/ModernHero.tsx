@@ -1,148 +1,156 @@
+
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { Palette, Package, Star, TrendingUp, Share2, Headphones, Globe, Bot, Building2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ServiceExamples from '../ServiceExamples';
+
 interface ModernHeroProps {
   onRequestQuote: () => void;
   onChatNow: () => void;
 }
+
 const ModernHero: React.FC<ModernHeroProps> = ({
   onRequestQuote,
   onChatNow
 }) => {
-  const {
-    t,
-    i18n
-  } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
   const [selectedService, setSelectedService] = useState<string | null>(null);
-  const services = [{
-    key: 'logoDesign',
-    icon: Palette,
-    gradient: 'from-purple-500 to-pink-500'
-  }, {
-    key: 'productPackaging',
-    icon: Package,
-    gradient: 'from-blue-500 to-cyan-500'
-  }, {
-    key: 'branding',
-    icon: Star,
-    gradient: 'from-yellow-500 to-orange-500'
-  }, {
-    key: 'marketing',
-    icon: TrendingUp,
-    gradient: 'from-green-500 to-emerald-500'
-  }, {
-    key: 'socialMedia',
-    icon: Share2,
-    gradient: 'from-pink-500 to-rose-500'
-  }, {
-    key: 'smartCX',
-    icon: Headphones,
-    gradient: 'from-indigo-500 to-purple-500'
-  }, {
-    key: 'webDevelopment',
-    icon: Globe,
-    gradient: 'from-cyan-500 to-blue-500'
-  }, {
-    key: 'personalAssistant',
-    icon: Bot,
-    gradient: 'from-violet-500 to-purple-500'
-  }, {
-    key: 'erp',
-    icon: Building2,
-    gradient: 'from-slate-500 to-gray-500'
-  }];
+
+  const services = [
+    { key: 'logoDesign', icon: Palette, gradient: 'from-purple-500 to-pink-500' },
+    { key: 'productPackaging', icon: Package, gradient: 'from-blue-500 to-cyan-500' },
+    { key: 'branding', icon: Star, gradient: 'from-yellow-500 to-orange-500' },
+    { key: 'marketing', icon: TrendingUp, gradient: 'from-green-500 to-emerald-500' },
+    { key: 'socialMedia', icon: Share2, gradient: 'from-pink-500 to-rose-500' },
+    { key: 'smartCX', icon: Headphones, gradient: 'from-indigo-500 to-purple-500' },
+    { key: 'webDevelopment', icon: Globe, gradient: 'from-cyan-500 to-blue-500' },
+    { key: 'personalAssistant', icon: Bot, gradient: 'from-violet-500 to-purple-500' },
+    { key: 'erp', icon: Building2, gradient: 'from-slate-500 to-gray-500' }
+  ];
+
   const handleServiceClick = (serviceKey: string) => {
     setSelectedService(serviceKey);
   };
-  return <section id="home" className={`min-h-screen bg-slate-950 relative overflow-hidden pt-16 ${isRTL ? 'rtl' : 'ltr'}`}>
-      {/* Animated Background */}
+
+  return (
+    <section id="home" className={`min-h-screen bg-slate-950 relative overflow-hidden pt-16 ${isRTL ? 'rtl' : 'ltr'}`}>
+      {/* Enhanced Animated Background */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-slate-950 to-purple-900/20 bg-[#126c12] rounded-sm" />
-        {[...Array(20)].map((_, i) => <motion.div key={i} className="absolute w-1 h-1 bg-cyan-400/30 rounded-full" style={{
-        left: `${Math.random() * 100}%`,
-        top: `${Math.random() * 100}%`
-      }} animate={{
-        opacity: [0.3, 1, 0.3],
-        scale: [1, 1.5, 1]
-      }} transition={{
-        duration: 3 + Math.random() * 2,
-        repeat: Infinity,
-        delay: Math.random() * 2
-      }} />)}
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-slate-950 to-purple-900/20" />
+        
+        {/* Floating particles */}
+        {[...Array(30)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-1 h-1 bg-cyan-400/30 rounded-full"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`
+            }}
+            animate={{
+              opacity: [0.3, 1, 0.3],
+              scale: [1, 1.5, 1],
+              y: [-20, 20, -20],
+            }}
+            transition={{
+              duration: 3 + Math.random() * 2,
+              repeat: Infinity,
+              delay: Math.random() * 2,
+              ease: "easeInOut"
+            }}
+          />
+        ))}
+
+        {/* Gradient orbs */}
+        <motion.div
+          className="absolute top-1/4 left-1/4 w-64 h-64 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-full blur-3xl"
+          animate={{
+            scale: [1, 1.2, 1],
+            rotate: [0, 180, 360],
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            ease: "linear"
+          }}
+        />
+        <motion.div
+          className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-gradient-to-r from-cyan-500/10 to-pink-500/10 rounded-full blur-3xl"
+          animate={{
+            scale: [1.2, 1, 1.2],
+            rotate: [360, 180, 0],
+          }}
+          transition={{
+            duration: 15,
+            repeat: Infinity,
+            ease: "linear"
+          }}
+        />
       </div>
 
       <div className="container mx-auto px-4 py-20 relative z-10">
         <div className="text-center mb-16">
-          <motion.h1 initial={{
-          opacity: 0,
-          y: 30
-        }} animate={{
-          opacity: 1,
-          y: 0
-        }} transition={{
-          duration: 0.8
-        }} className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-white via-cyan-400 to-blue-500 bg-clip-text text-transparent">
+          <motion.h1
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-white via-cyan-400 to-blue-500 bg-clip-text text-transparent"
+          >
             {t('hero.title')}
           </motion.h1>
 
-          <motion.p initial={{
-          opacity: 0,
-          y: 30
-        }} animate={{
-          opacity: 1,
-          y: 0
-        }} transition={{
-          duration: 0.8,
-          delay: 0.2
-        }} className="text-xl md:text-2xl text-gray-300 mb-4 max-w-4xl mx-auto">
+          <motion.p
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="text-xl md:text-2xl text-gray-300 mb-4 max-w-4xl mx-auto"
+          >
             {t('hero.subtitle')}
           </motion.p>
 
-          <motion.p initial={{
-          opacity: 0,
-          y: 30
-        }} animate={{
-          opacity: 1,
-          y: 0
-        }} transition={{
-          duration: 0.8,
-          delay: 0.4
-        }} className="text-lg text-gray-400 mb-8 max-w-3xl mx-auto">
+          <motion.p
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="text-lg text-gray-400 mb-8 max-w-3xl mx-auto"
+          >
             {t('hero.description')}
           </motion.p>
 
-          <motion.div initial={{
-          opacity: 0,
-          y: 30
-        }} animate={{
-          opacity: 1,
-          y: 0
-        }} transition={{
-          duration: 0.8,
-          delay: 0.6
-        }} className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Button onClick={onRequestQuote} size="lg" className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-cyan-500/25">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+          >
+            <Button
+              onClick={onRequestQuote}
+              size="lg"
+              className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-cyan-500/25"
+            >
               {t('hero.requestQuote')}
             </Button>
-            <Button onClick={onChatNow} variant="outline" size="lg" className="border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10 px-8 py-3 rounded-xl font-semibold transition-all duration-300">
+            <Button
+              onClick={onChatNow}
+              variant="outline"
+              size="lg"
+              className="border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10 px-8 py-3 rounded-xl font-semibold transition-all duration-300"
+            >
               {t('hero.chatNow')}
             </Button>
           </motion.div>
         </div>
 
-        {/* Interactive Services Grid */}
-        <motion.div initial={{
-        opacity: 0
-      }} animate={{
-        opacity: 1
-      }} transition={{
-        duration: 1,
-        delay: 0.8
-      }} className="mb-16">
+        {/* Enhanced Interactive Services Grid */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1, delay: 0.8 }}
+          className="mb-16"
+        >
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-white">
             {t('services.title')}
           </h2>
@@ -153,45 +161,61 @@ const ModernHero: React.FC<ModernHeroProps> = ({
             </span>
           </p>
 
-          <div className="div {\n  margin: 0 0;\n  padding: 20px;\n  background: linear-gradient(135deg, #1e3a8a 0%, #1e1e2f 100%);\n  border-radius: 20px;\n  border: 1px solid #00d4ff;\n  box-shadow: 0 0 15px rgba(0, 212, 255, 0.5);\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));\n  gap: 24px;\n  max-width: 72rem;\n  margin-left: auto;\n  margin-right: auto;\n  transition: transform 0.3s ease, box-shadow 0.3s ease;\n}\n\ndiv:hover {\n  transform: translateY(-5px);\n  box-shadow: 0 0 25px rgba(0, 212, 255, 0.8);\n}\n\ndiv > div {\n  background: -webkit-box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.1);\n  border: 1px solid #00d4ff;\n  padding: 15px;\n  border-radius: 15px;\n  transition: background 0.3s ease;\n}\n\ndiv > div:hover {\n  background: rgba(255, 255, 255, 0.05);\n}">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
             {services.map((service, index) => {
-            const Icon = service.icon;
-            return <motion.div key={service.key} initial={{
-              opacity: 0,
-              y: 30
-            }} animate={{
-              opacity: 1,
-              y: 0
-            }} transition={{
-              duration: 0.6,
-              delay: 0.1 * index
-            }} whileHover={{
-              y: -5,
-              scale: 1.02
-            }} onClick={() => handleServiceClick(service.key)} className="div {\n  margin: 0 0;\n  padding: 20px;\n  background: linear-gradient(135deg, #1e3a8a 0%, #1e1e2f 100%);\n  border-radius: 20px;\n  border: 1px solid #00d4ff;\n  box-shadow: 0 0 15px rgba(0, 212, 255, 0.5);\n  display: grid;\n  grid-template-columns: repeat(3, 1fr); /* Forces 3 columns */\n  gap: 24px;\n  max-width: 72rem;\n  margin-left: auto;\n  margin-right: auto;\n  transition: transform 0.3s ease, box-shadow 0.3s ease;\n}\n\ndiv:hover {\n  transform: translateY(-5px);\n  box-shadow: 0 0 25px rgba(0, 212, 255, 0.8);\n}\n\ndiv > div {\n  background: rgba(255, 255, 255, 0.05);\n  border: 1px solid #00d4ff;\n  padding: 15px;\n  border-radius: 15px;\n  transition: background 0.3s ease;\n}\n\ndiv > div:hover {\n  background: rgba(255, 255, 255, 0.1);\n}">
-                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${service.gradient} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
-                    <Icon className="w-6 h-6 text-white" />
+              const Icon = service.icon;
+              return (
+                <motion.div
+                  key={service.key}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.1 * index }}
+                  whileHover={{ y: -8, scale: 1.02 }}
+                  onClick={() => handleServiceClick(service.key)}
+                  className="group relative bg-gradient-to-br from-slate-800/50 to-slate-900/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 cursor-pointer transition-all duration-300 hover:border-cyan-500/50 hover:shadow-xl hover:shadow-cyan-500/10"
+                >
+                  {/* Hover glow effect */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 to-blue-500/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  
+                  <div className="relative z-10">
+                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${service.gradient} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
+                      <Icon className="w-6 h-6 text-white" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-white mb-2 group-hover:text-cyan-400 transition-colors">
+                      {t(`services.${service.key}.title`)}
+                    </h3>
+                    <p className="text-gray-400 leading-relaxed mb-3 text-sm">
+                      {t(`services.${service.key}.description`)}
+                    </p>
+                    <div className="text-sm text-cyan-400 font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center gap-2">
+                      <span>{i18n.language === 'ar' ? 'انقر لرؤية مثال' : 'Click to see example'}</span>
+                      <motion.span
+                        animate={{ x: [0, 4, 0] }}
+                        transition={{ duration: 1.5, repeat: Infinity }}
+                      >
+                        →
+                      </motion.span>
+                    </div>
                   </div>
-                  <h3 className="text-xl font-semibold text-white mb-2 group-hover:text-cyan-400 transition-colors">
-                    {t(`services.${service.key}.title`)}
-                  </h3>
-                  <p className="text-gray-400 leading-relaxed mb-3">
-                    {t(`services.${service.key}.description`)}
-                  </p>
-                  <div className="text-sm text-cyan-400 font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-                    {i18n.language === 'ar' ? 'انقر لرؤية مثال ←' : 'Click to see example →'}
-                  </div>
-                </motion.div>;
-          })}
+                </motion.div>
+              );
+            })}
           </div>
         </motion.div>
       </div>
 
       {/* Service Examples Modal */}
-      <ServiceExamples serviceKey={selectedService || ''} isOpen={!!selectedService} onClose={() => setSelectedService(null)} onGetQuote={() => {
-      setSelectedService(null);
-      onChatNow();
-    }} />
-    </section>;
+      <ServiceExamples
+        serviceKey={selectedService || ''}
+        isOpen={!!selectedService}
+        onClose={() => setSelectedService(null)}
+        onGetQuote={() => {
+          setSelectedService(null);
+          onChatNow();
+        }}
+      />
+    </section>
+  );
 };
+
 export default ModernHero;
