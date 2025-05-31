@@ -1,16 +1,25 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { useTranslation } from 'react-i18next';
 import ModernNavigation from './ModernNavigation';
-import ModernHero from './ModernHero';
-import QuoteModal from './QuoteModal';
-import ModernChat from './ModernChat';
-import AuthModal from '../auth/AuthModal';
+import OptimizedModernHero from './OptimizedModernHero';
 import { Toaster } from '@/components/ui/toaster';
-import { ArrowLeft, ArrowRight, User } from 'lucide-react';
+import { ArrowLeft, ArrowRight, User, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import type { User as SupabaseUser } from '@supabase/supabase-js';
+
+// Lazy load components for better performance
+const QuoteModal = lazy(() => import('./QuoteModal'));
+const PerformanceOptimizedChat = lazy(() => import('./PerformanceOptimizedChat'));
+const AuthModal = lazy(() => import('../auth/AuthModal'));
+
+// Loading component
+const LoadingSpinner = () => (
+  <div className="flex items-center justify-center p-8">
+    <Loader2 className="w-8 h-8 animate-spin text-cyan-400" />
+  </div>
+);
 
 const ModernApp: React.FC = () => {
   const { i18n } = useTranslation();
@@ -18,12 +27,27 @@ const ModernApp: React.FC = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [user, setUser] = useState<SupabaseUser | null>(null);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
 
   useEffect(() => {
     // Set document direction based on language
     document.documentElement.dir = i18n.language === 'ar' ? 'rtl' : 'ltr';
     document.documentElement.lang = i18n.language;
   }, [i18n.language]);
+
+  useEffect(() => {
+    // Network status monitoring
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   useEffect(() => {
     // Get initial session
@@ -49,13 +73,20 @@ const ModernApp: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-950 text-white">
+      {/* Network Status Indicator */}
+      {!isOnline && (
+        <div className="fixed top-0 left-0 right-0 bg-red-600 text-white text-center py-2 z-50">
+          {i18n.language === 'ar' ? 'غير متصل بالإنترنت' : 'You are offline'}
+        </div>
+      )}
+
       {/* Navigation Buttons */}
       <div className="fixed top-20 left-4 z-40 flex flex-col gap-2">
         <Button
           variant="ghost"
           size="icon"
           onClick={() => window.history.back()}
-          className="bg-slate-800/50 hover:bg-slate-700 text-white backdrop-blur-sm"
+          className="bg-slate-800/50 hover:bg-slate-700 text-white backdrop-blur-sm transition-all duration-300 hover:scale-105"
         >
           <ArrowLeft className="w-5 h-5" />
         </Button>
@@ -63,43 +94,49 @@ const ModernApp: React.FC = () => {
           variant="ghost"
           size="icon"
           onClick={() => window.history.forward()}
-          className="bg-slate-800/50 hover:bg-slate-700 text-white backdrop-blur-sm"
+          className="bg-slate-800/50 hover:bg-slate-700 text-white backdrop-blur-sm transition-all duration-300 hover:scale-105"
         >
           <ArrowRight className="w-5 h-5" />
         </Button>
       </div>
 
-      {/* DigitalPro Branding */}
+      {/* Enhanced DigitalPro Branding */}
       <div className="fixed top-20 right-4 z-40">
-        <div className="bg-gradient-to-r from-blue-600/20 to-cyan-600/20 backdrop-blur-sm border border-blue-500/30 rounded-lg px-3 py-2">
+        <div className="bg-gradient-to-r from-blue-600/20 to-cyan-600/20 backdrop-blur-sm border border-blue-500/30 rounded-lg px-4 py-2 hover:scale-105 transition-transform duration-300">
           <span className="text-sm font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
             DigitalPro
           </span>
+          <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse inline-block ml-2" />
         </div>
       </div>
 
-      {/* User Authentication Section */}
-      <div className="fixed top-20 right-20 z-40">
+      {/* Enhanced User Authentication Section */}
+      <div className="fixed top-20 right-24 z-40">
         {user ? (
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-300">
-              {user.user_metadata?.full_name || user.email}
-            </span>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleSignOut}
-              className="text-gray-400 hover:text-white"
-            >
-              {i18n.language === 'ar' ? 'تسجيل الخروج' : 'Sign Out'}
-            </Button>
+          <div className="flex items-center gap-3 bg-slate-800/50 backdrop-blur-sm rounded-lg px-4 py-2 border border-slate-600/30">
+            <div className="w-8 h-8 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-full flex items-center justify-center">
+              <User className="w-4 h-4 text-white" />
+            </div>
+            <div className="text-sm">
+              <div className="text-white font-medium">
+                {user.user_metadata?.full_name || user.email?.split('@')[0]}
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleSignOut}
+                className="text-gray-400 hover:text-white p-0 h-auto font-normal"
+              >
+                {i18n.language === 'ar' ? 'تسجيل الخروج' : 'Sign Out'}
+              </Button>
+            </div>
           </div>
         ) : (
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setIsAuthModalOpen(true)}
-            className="text-gray-400 hover:text-white"
+            className="text-gray-400 hover:text-white bg-slate-800/50 backdrop-blur-sm hover:bg-slate-700/50 transition-all duration-300"
           >
             <User className="w-4 h-4 mr-2" />
             {i18n.language === 'ar' ? 'تسجيل الدخول' : 'Sign In'}
@@ -109,37 +146,47 @@ const ModernApp: React.FC = () => {
 
       <ModernNavigation />
       
-      <ModernHero 
+      <OptimizedModernHero 
         onRequestQuote={() => setIsQuoteModalOpen(true)}
         onChatNow={() => setIsChatOpen(true)}
       />
 
-      {/* Single Chat Widget - Only show when chat is not open */}
+      {/* Enhanced Chat Widget */}
       {!isChatOpen && (
         <div className="fixed bottom-6 right-6 z-40">
           <Button
             onClick={() => setIsChatOpen(true)}
-            className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white px-6 py-3 rounded-full shadow-lg hover:shadow-cyan-500/25 transition-all duration-300 transform hover:scale-105"
+            className="group bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white px-6 py-3 rounded-full shadow-lg hover:shadow-cyan-500/25 transition-all duration-300 transform hover:scale-105"
           >
-            {i18n.language === 'ar' ? 'ابدأ المحادثة' : 'Chat Now'}
+            <span className="flex items-center gap-2">
+              {i18n.language === 'ar' ? 'ابدأ المحادثة' : 'Chat Now'}
+              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+            </span>
           </Button>
         </div>
       )}
 
-      <QuoteModal 
-        isOpen={isQuoteModalOpen}
-        onClose={() => setIsQuoteModalOpen(false)}
-      />
+      {/* Lazy Loaded Modals with Suspense */}
+      <Suspense fallback={<LoadingSpinner />}>
+        <QuoteModal 
+          isOpen={isQuoteModalOpen}
+          onClose={() => setIsQuoteModalOpen(false)}
+        />
+      </Suspense>
 
-      <ModernChat 
-        isOpen={isChatOpen}
-        onClose={() => setIsChatOpen(false)}
-      />
+      <Suspense fallback={<LoadingSpinner />}>
+        <PerformanceOptimizedChat 
+          isOpen={isChatOpen}
+          onClose={() => setIsChatOpen(false)}
+        />
+      </Suspense>
 
-      <AuthModal 
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
-      />
+      <Suspense fallback={<LoadingSpinner />}>
+        <AuthModal 
+          isOpen={isAuthModalOpen}
+          onClose={() => setIsAuthModalOpen(false)}
+        />
+      </Suspense>
 
       <Toaster />
     </div>
