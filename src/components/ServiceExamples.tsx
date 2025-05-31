@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { X, MessageCircle, FileText, TrendingUp, Image as ImageIcon, Sparkles, BarChart3 } from 'lucide-react';
+import { X, MessageCircle, FileText, TrendingUp, Image as ImageIcon, Sparkles, BarChart3, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import type { Tables } from '@/integrations/supabase/types';
+import ServiceVisualExample from './ServiceVisualExample';
 
 // Use the Supabase generated type directly
 type ServiceExample = Tables<'service_examples'>;
@@ -346,7 +347,7 @@ const ServiceExamples: React.FC<ServiceExamplesProps> = ({
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
-            className="bg-white rounded-2xl max-w-4xl w-full max-h-[80vh] overflow-hidden shadow-2xl"
+            className="bg-white rounded-2xl max-w-4xl w-full max-h-[85vh] overflow-hidden shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Enhanced Header */}
@@ -360,7 +361,7 @@ const ServiceExamples: React.FC<ServiceExamplesProps> = ({
                     <h2 className="text-xl font-semibold text-gray-800">
                       {examples[0]?.title || t(`services.${serviceKey}.title`)}
                     </h2>
-                    <p className="text-sm text-gray-600">Real examples from our portfolio</p>
+                    <p className="text-sm text-gray-600">Service delivery showcase & expected outcomes</p>
                   </div>
                 </div>
                 <Button variant="ghost" size="icon" onClick={onClose} className="hover:bg-gray-100">
@@ -370,7 +371,7 @@ const ServiceExamples: React.FC<ServiceExamplesProps> = ({
             </div>
 
             {/* Content Area */}
-            <div className="p-6 overflow-y-auto max-h-[50vh]">
+            <div className="p-6 overflow-y-auto max-h-[55vh]">
               {loading ? (
                 <div className="flex items-center justify-center py-12">
                   <motion.div
@@ -381,17 +382,8 @@ const ServiceExamples: React.FC<ServiceExamplesProps> = ({
                   <span className="ml-3 text-gray-600">Loading examples...</span>
                 </div>
               ) : examples.length === 0 ? (
-                <motion.div 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="text-center py-12"
-                >
-                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <ImageIcon className="w-8 h-8 text-gray-400" />
-                  </div>
-                  <p className="text-gray-500 mb-2">No examples available yet</p>
-                  <p className="text-sm text-gray-400">We're preparing amazing examples for this service!</p>
-                </motion.div>
+                // Show visual service example when no database examples exist
+                <ServiceVisualExample serviceKey={serviceKey} />
               ) : (
                 <div className="space-y-8">
                   {examples.map((example, index) => (
