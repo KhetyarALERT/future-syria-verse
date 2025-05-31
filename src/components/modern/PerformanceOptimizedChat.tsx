@@ -121,8 +121,9 @@ const PerformanceOptimizedChat: React.FC<PerformanceOptimizedChatProps> = ({
     setMessages(updatedMessagesWithUser);
     setInput('');
 
+    // Fix the type conversion here - map 'bot' to 'assistant'
     const conversationHistory = messages.slice(1).map(msg => ({
-      role: msg.sender === 'user' ? 'user' : 'assistant',
+      role: msg.sender === 'user' ? 'user' as const : 'assistant' as const,
       content: msg.content
     }));
 
