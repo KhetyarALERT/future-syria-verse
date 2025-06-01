@@ -27,7 +27,7 @@ const ContactSection: React.FC = () => {
     email: '',
     phone: '',
     message: '',
-    inquiryType: 'general'
+    inquiryType: 'general' as 'general' | 'service_inquiry' | 'support_request' | 'complaint' | 'suggestion'
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -43,11 +43,10 @@ const ContactSection: React.FC = () => {
       const { error } = await supabase
         .from('inquiries')
         .insert({
-          name: formData.name,
           email: formData.email,
           phone: formData.phone || null,
           inquiry_type: formData.inquiryType,
-          inquiry_text: formData.message,
+          inquiry_text: `Name: ${formData.name}\n\nMessage: ${formData.message}`,
           language: 'en'
         });
         
