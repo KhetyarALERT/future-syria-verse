@@ -11,12 +11,26 @@ interface Message {
   type?: 'text' | 'form' | 'suggestion';
 }
 
+interface ConversationState {
+  stage: 'greeting' | 'service_selected' | 'needs_gathering' | 'summary' | 'completed';
+  selectedService: string;
+  gatheredInfo: Record<string, any>;
+  currentQuestionIndex: number;
+}
+
 export const useAdvancedAIChat = () => {
   const { toast } = useToast();
   const [messages, setMessages] = useState<Message[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const [sessionId] = useState(() => `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  
+  const [conversationState, setConversationState] = useState<ConversationState>({
+    stage: 'greeting',
+    selectedService: '',
+    gatheredInfo: {},
+    currentQuestionIndex: 0
+  });
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -43,7 +57,7 @@ export const useAdvancedAIChat = () => {
         'Do you have any competitors whose logos you admire or want to avoid?'
       ]
     },
-    'website-development': {
+    'web-development': {
       name: 'Website Development',
       description: 'Modern, responsive websites built with cutting-edge technology for optimal performance and user experience.',
       features: ['Responsive design', 'SEO optimization', 'Fast loading', 'Security features', 'Analytics integration'],
@@ -58,7 +72,7 @@ export const useAdvancedAIChat = () => {
         'Do you have any reference websites you like?'
       ]
     },
-    'ecommerce-solutions': {
+    'ecommerce': {
       name: 'E-commerce Solutions',
       description: 'Complete online store solutions with payment processing, inventory management, and customer experience optimization.',
       features: ['Product catalog', 'Payment gateway', 'Inventory management', 'Order tracking', 'Customer dashboard'],
@@ -104,14 +118,6 @@ export const useAdvancedAIChat = () => {
       ]
     }
   };
-
-  // Enhanced conversation management
-  const [conversationState, setConversationState] = useState({
-    stage: 'greeting',
-    selectedService: '',
-    gatheredInfo: {} as any,
-    currentQuestionIndex: 0
-  });
 
   const generateWelcomeMessage = useCallback(() => {
     return `🚀 Welcome to DigitalPro's AI Consultant! I'm here to help you find the perfect digital solution for your needs.
@@ -187,176 +193,191 @@ This information will help our team provide you with a customized proposal that 
     return serviceInfo.questions[questionIndex];
   }, []);
 
-  const callOpenRouterAPI = useCallback(async (message: string, conversationHistory: Message[]) => {
-    try {
-      const response = await supabase.functions.invoke('openrouter-ai-chat', {
-        body: {
-          message,
-          conversationHistory: conversationHistory.slice(-10).map(msg => ({
-            role: msg.sender === 'user' ? 'user' : 'assistant',
-            content: msg.content
-          })),
-          language: 'en',
-          companyKnowledge: {
-            services: Object.values(serviceKnowledge),
-            specialties: ['Digital Innovation', 'AI Solutions', 'Business Automation', 'Brand Development']
-          },
-          recentInquiries: [],
-          aiConfig: {
-            temperature: 0.7,
-            max_tokens: 1000
-          }
-        }
-      });
+  const detectService = (message: string): string | null => {
+    const lowerMessage = message.toLowerCase();
+    
+    // Detect service interest
+    if (lowerMessage.includes('logo') || lowerMessage.includes('brand')) return 'logo-design';
+    if (lowerMessage.includes('website') || lowerMessage.includes('web ')) return 'web-development';
+    if (lowerMessage.includes('ecommerce') || lowerMessage.includes('e-commerce') || lowerMessage.includes('store')) return 'ecommerce';
+    if (lowerMessage.includes('ai') || lowerMessage.includes('chatbot') || lowerMessage.includes('assistant')) return 'ai-assistants';
+    if (lowerMessage.includes('marketing') || lowerMessage.includes('social media') || lowerMessage.includes('seo')) return 'digital-marketing';
+    
+    return null;
+  };
 
-      if (response.error) {
-        console.error('Supabase function error:', response.error);
-        throw new Error(response.error.message || 'AI service error');
-      }
-
-      return response.data?.response || 'I apologize, but I\'m having trouble processing your request right now. Please try again.';
-    } catch (error) {
-      console.error('AI Chat Error:', error);
-      throw error;
+  const generateResponse = useCallback((userMessage: string): string => {
+    const lowerMessage = userMessage.toLowerCase();
+    
+    // Check for greetings
+    if (/^(hi|hello|hey|greetings|sup|what's up|howdy)/i.test(lowerMessage)) {
+      return `Hello there! 👋 I'm DigitalPro's AI Consultant. How can I help you today? Are you interested in learning about any of our services like Logo Design, Web Development, or AI Solutions?`;
     }
-  }, []);
+    
+    // Check for pricing inquiries
+    if (/price|cost|budget|how much|pricing|expensive|cheap|affordable/i.test(lowerMessage)) {
+      return `I understand you're interested in pricing information! Our pricing is customized based on your specific project needs.
 
-  const processUserMessage = useCallback(async (message: string) => {
+For the most accurate quote, we'd need to understand your requirements better. Would you like to:
+
+1. Tell me more about your specific project needs?
+2. Schedule a consultation with our team for a detailed quote?
+3. Learn about the general pricing range for a specific service?
+
+Just let me know which option you prefer, or tell me which service you're interested in!`;
+    }
+    
+    // Check for thank you
+    if (/thanks|thank you|appreciate|grateful/i.test(lowerMessage)) {
+      return `You're very welcome! 😊 I'm here to help whenever you need assistance with your digital needs. Is there anything else I can help you with today?`;
+    }
+    
+    // Check for questions about company
+    if (/about|company|who are you|team|experience/i.test(lowerMessage)) {
+      return `DigitalPro is a leading digital solutions provider specializing in AI-powered services. Our team combines technical expertise with creative innovation to deliver exceptional results.
+
+🏆 **Our Achievements:**
+• Over 500+ successful projects completed
+• 98% client satisfaction rate
+• 24-hour response time
+• Team of experts with 50+ AI models in our toolkit
+
+We work with businesses of all sizes, from startups to enterprises. Would you like to know about any specific service we offer?`;
+    }
+    
+    // Service-specific responses
+    const detectedService = detectService(userMessage);
+    if (detectedService) {
+      return generateServiceResponse(detectedService, userMessage);
+    }
+    
+    // Default response
+    return `Thank you for your message! I'd be happy to assist you with that. Could you please tell me more about what digital services you're looking for? We specialize in logo design, web development, e-commerce solutions, AI assistants, and digital marketing.`;
+  }, [generateServiceResponse]);
+
+  const processUserMessage = useCallback((message: string) => {
     setIsTyping(true);
     
-    try {
-      let aiResponse = '';
-      const lowerMessage = message.toLowerCase();
-
-      // Detect service interest
-      const serviceDetection = {
-        'logo': 'logo-design',
-        'website': 'website-development',
-        'ecommerce': 'ecommerce-solutions',
-        'e-commerce': 'ecommerce-solutions',
-        'store': 'ecommerce-solutions',
-        'ai': 'ai-assistants',
-        'chatbot': 'ai-assistants',
-        'marketing': 'digital-marketing',
-        'social media': 'digital-marketing'
-      };
-
-      const detectedService = Object.entries(serviceDetection).find(([keyword]) => 
-        lowerMessage.includes(keyword)
-      )?.[1];
-
-      if (conversationState.stage === 'greeting' && messages.length <= 1) {
-        if (detectedService) {
-          setConversationState(prev => ({
-            ...prev,
-            stage: 'service_selected',
-            selectedService: detectedService,
-            currentQuestionIndex: 0
-          }));
-          aiResponse = generateServiceResponse(detectedService, message);
-        } else {
-          // Use AI for more complex queries
-          aiResponse = await callOpenRouterAPI(message, messages);
-        }
-      } else if (conversationState.stage === 'service_selected') {
-        // Collect information step by step
-        const currentInfo = { ...conversationState.gatheredInfo };
-        const questionIndex = conversationState.currentQuestionIndex;
+    // Simulate AI thinking time for natural interaction
+    setTimeout(() => {
+      try {
+        let aiResponse = '';
+        const detectedService = detectService(message);
         
-        // Store the answer
-        currentInfo[`answer_${questionIndex}`] = message;
-        
-        // Move to next question or finish
-        const nextQuestionIndex = questionIndex + 1;
-        const serviceInfo = serviceKnowledge[conversationState.selectedService as keyof typeof serviceKnowledge];
-        
-        if (nextQuestionIndex < serviceInfo.questions.length) {
-          setConversationState(prev => ({
-            ...prev,
-            gatheredInfo: currentInfo,
-            currentQuestionIndex: nextQuestionIndex
-          }));
+        if (conversationState.stage === 'greeting') {
+          if (detectedService) {
+            // User mentioned a service, update state
+            setConversationState(prev => ({
+              ...prev,
+              stage: 'service_selected',
+              selectedService: detectedService,
+              currentQuestionIndex: 0
+            }));
+            
+            aiResponse = generateServiceResponse(detectedService, message);
+          } else {
+            // Generic response
+            aiResponse = generateResponse(message);
+          }
+        } else if (conversationState.stage === 'service_selected') {
+          // Collect information step by step
+          const currentInfo = { ...conversationState.gatheredInfo };
+          const questionIndex = conversationState.currentQuestionIndex;
           
-          aiResponse = `Great! I've noted that information. 
+          // Store the answer
+          currentInfo[`answer_${questionIndex}`] = message;
+          
+          // Move to next question or finish
+          const nextQuestionIndex = questionIndex + 1;
+          const serviceInfo = serviceKnowledge[conversationState.selectedService as keyof typeof serviceKnowledge];
+          
+          if (nextQuestionIndex < serviceInfo.questions.length) {
+            setConversationState(prev => ({
+              ...prev,
+              gatheredInfo: currentInfo,
+              currentQuestionIndex: nextQuestionIndex
+            }));
+            
+            aiResponse = `Great! I've noted that information. 
 
 **Next question:** ${generateFollowUpQuestion(conversationState.selectedService, nextQuestionIndex)}`;
-        } else {
-          // All questions answered, prepare summary
-          setConversationState(prev => ({
-            ...prev,
-            stage: 'summary',
-            gatheredInfo: currentInfo
-          }));
-          
-          aiResponse = `Perfect! I have all the information needed. Let me prepare a comprehensive summary of your requirements:
+          } else {
+            // All questions answered, prepare summary
+            setConversationState(prev => ({
+              ...prev,
+              stage: 'summary',
+              gatheredInfo: currentInfo
+            }));
+            
+            aiResponse = `Perfect! I have all the information needed. Let me prepare a comprehensive summary of your requirements:
 
 📋 **Project Summary:**
 • **Service:** ${serviceInfo.name}
-• **Responses:** ${Object.values(currentInfo).join(', ')}
+• **Requirements:** ${Object.values(currentInfo).join(', ')}
 
 Now I need your contact information to send this to our team for a personalized proposal.
 
 **What's your name?**`;
-        }
-      } else if (conversationState.stage === 'summary') {
-        // Handle contact information collection
-        if (!conversationState.gatheredInfo.name) {
-          setConversationState(prev => ({
-            ...prev,
-            gatheredInfo: { ...prev.gatheredInfo, name: message }
-          }));
-          aiResponse = "Thank you! **What's your email address?**";
-        } else if (!conversationState.gatheredInfo.email) {
-          setConversationState(prev => ({
-            ...prev,
-            gatheredInfo: { ...prev.gatheredInfo, email: message }
-          }));
-          aiResponse = "Great! **What's your phone number?** (optional)";
-        } else if (!conversationState.gatheredInfo.phone) {
-          setConversationState(prev => ({
-            ...prev,
-            gatheredInfo: { ...prev.gatheredInfo, phone: message }
-          }));
-          aiResponse = "Perfect! **How would you prefer to be contacted?** (WhatsApp, Email, Phone call, etc.)";
-        } else if (!conversationState.gatheredInfo.contactMethod) {
-          setConversationState(prev => ({
-            ...prev,
-            gatheredInfo: { ...prev.gatheredInfo, contactMethod: message }
-          }));
-          aiResponse = "Excellent! **What time works best for you?** (Morning, afternoon, evening, or specific times)";
-        } else if (!conversationState.gatheredInfo.preferredTime) {
-          setConversationState(prev => ({
-            ...prev,
-            gatheredInfo: { ...prev.gatheredInfo, preferredTime: message },
-            stage: 'completed'
-          }));
-          
-          // Submit the inquiry
-          try {
-            const { error } = await supabase.from('inquiries').insert({
-              name: conversationState.gatheredInfo.name,
-              email: conversationState.gatheredInfo.email,
-              phone: conversationState.gatheredInfo.phone || null,
-              inquiry_type: 'service_inquiry',
-              inquiry_text: `Service: ${serviceKnowledge[conversationState.selectedService as keyof typeof serviceKnowledge].name}\n\nProject Details:\n${JSON.stringify(conversationState.gatheredInfo, null, 2)}`,
-              language: 'en',
-              metadata: {
-                source: 'ai_consultant',
-                service: conversationState.selectedService,
-                contact_method: conversationState.gatheredInfo.contactMethod,
-                preferred_time: message,
-                session_id: sessionId
-              }
-            });
+          }
+        } else if (conversationState.stage === 'summary') {
+          // Handle contact information collection
+          if (!conversationState.gatheredInfo.name) {
+            setConversationState(prev => ({
+              ...prev,
+              gatheredInfo: { ...prev.gatheredInfo, name: message }
+            }));
+            aiResponse = "Thank you! **What's your email address?**";
+          } else if (!conversationState.gatheredInfo.email) {
+            setConversationState(prev => ({
+              ...prev,
+              gatheredInfo: { ...prev.gatheredInfo, email: message }
+            }));
+            aiResponse = "Great! **What's your phone number?** (optional)";
+          } else if (!conversationState.gatheredInfo.phone) {
+            setConversationState(prev => ({
+              ...prev,
+              gatheredInfo: { ...prev.gatheredInfo, phone: message }
+            }));
+            aiResponse = "Perfect! **How would you prefer to be contacted?** (WhatsApp, Email, Phone call, etc.)";
+          } else if (!conversationState.gatheredInfo.contactMethod) {
+            setConversationState(prev => ({
+              ...prev,
+              gatheredInfo: { ...prev.gatheredInfo, contactMethod: message }
+            }));
+            aiResponse = "Excellent! **What time works best for you?** (Morning, afternoon, evening, or specific times)";
+          } else if (!conversationState.gatheredInfo.preferredTime) {
+            setConversationState(prev => ({
+              ...prev,
+              gatheredInfo: { ...prev.gatheredInfo, preferredTime: message },
+              stage: 'completed'
+            }));
+            
+            // Submit the inquiry
+            try {
+              supabase.from('inquiries').insert({
+                name: conversationState.gatheredInfo.name,
+                email: conversationState.gatheredInfo.email,
+                phone: conversationState.gatheredInfo.phone || null,
+                inquiry_type: 'service_inquiry',
+                inquiry_text: `Service: ${serviceKnowledge[conversationState.selectedService as keyof typeof serviceKnowledge].name}\n\nProject Details:\n${JSON.stringify(conversationState.gatheredInfo, null, 2)}`,
+                language: 'en',
+                metadata: {
+                  source: 'ai_consultant',
+                  service: conversationState.selectedService,
+                  contact_method: conversationState.gatheredInfo.contactMethod,
+                  preferred_time: message,
+                  session_id: sessionId
+                }
+              }).then(({ error }) => {
+                if (error) throw error;
+              });
 
-            if (error) throw error;
+              toast({
+                title: "🎉 Request Submitted Successfully!",
+                description: "Our team will contact you within 24 hours with a customized proposal.",
+              });
 
-            toast({
-              title: "🎉 Request Submitted Successfully!",
-              description: "Our team will contact you within 24 hours with a customized proposal.",
-            });
-
-            aiResponse = `🎉 **Perfect! Your request has been submitted successfully!**
+              aiResponse = `🎉 **Perfect! Your request has been submitted successfully!**
 
 **Summary of your submission:**
 • **Service:** ${serviceKnowledge[conversationState.selectedService as keyof typeof serviceKnowledge].name}
@@ -368,41 +389,44 @@ Our expert team will review your requirements and contact you within **24 hours*
 Thank you for choosing DigitalPro! 🚀
 
 Is there anything else I can help you with today?`;
-          } catch (error) {
-            console.error('Error submitting inquiry:', error);
-            aiResponse = "I apologize, but there was an error submitting your request. Please try again or contact us directly.";
+            } catch (error) {
+              console.error('Error submitting inquiry:', error);
+              aiResponse = "I apologize, but there was an error submitting your request. Please try again or contact us directly.";
+            }
           }
+        } else {
+          // General conversation
+          aiResponse = generateResponse(message);
         }
-      } else {
-        // Use AI for general conversation
-        aiResponse = await callOpenRouterAPI(message, messages);
+
+        // Add AI response after a slight delay for realism
+        setTimeout(() => {
+          const aiMessage: Message = {
+            id: `ai_${Date.now()}`,
+            content: aiResponse,
+            sender: 'bot',
+            timestamp: new Date()
+          };
+  
+          setMessages(prev => [...prev, aiMessage]);
+          setIsTyping(false);
+        }, 500);
+        
+      } catch (error) {
+        console.error('Error processing message:', error);
+        
+        const errorMessage: Message = {
+          id: `error_${Date.now()}`,
+          content: "I apologize, but I'm experiencing some technical difficulties. Please try again or contact our support team directly.",
+          sender: 'bot',
+          timestamp: new Date()
+        };
+  
+        setMessages(prev => [...prev, errorMessage]);
+        setIsTyping(false);
       }
-
-      // Add AI response
-      const aiMessage: Message = {
-        id: `ai_${Date.now()}`,
-        content: aiResponse,
-        sender: 'bot',
-        timestamp: new Date()
-      };
-
-      setMessages(prev => [...prev, aiMessage]);
-      
-    } catch (error) {
-      console.error('Error processing message:', error);
-      
-      const errorMessage: Message = {
-        id: `error_${Date.now()}`,
-        content: "I apologize, but I'm experiencing some technical difficulties. Please try again or contact our support team directly.",
-        sender: 'bot',
-        timestamp: new Date()
-      };
-
-      setMessages(prev => [...prev, errorMessage]);
-    } finally {
-      setIsTyping(false);
-    }
-  }, [conversationState, messages, generateServiceResponse, callOpenRouterAPI, sessionId, toast]);
+    }, 1000);
+  }, [conversationState, generateResponse, generateServiceResponse, generateFollowUpQuestion, sessionId, toast]);
 
   const sendMessage = useCallback((message: string) => {
     if (!message.trim()) return;

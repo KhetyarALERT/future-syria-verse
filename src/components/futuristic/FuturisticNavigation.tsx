@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   Menu, 
   X, 
@@ -17,6 +18,8 @@ import { Button } from '@/components/ui/button';
 const FuturisticNavigation: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrollY, setScrollY] = useState(0);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
@@ -24,11 +27,30 @@ const FuturisticNavigation: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const scrollToSection = (sectionId: string) => {
+    if (location.pathname !== '/') {
+      navigate('/');
+      setTimeout(() => {
+        const element = document.getElementById(sectionId);
+        element?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    } else {
+      const element = document.getElementById(sectionId);
+      element?.scrollIntoView({ behavior: 'smooth' });
+    }
+    setIsOpen(false);
+  };
+
+  const handleNavigation = (path: string) => {
+    navigate(path);
+    setIsOpen(false);
+  };
+
   const navItems = [
-    { icon: Home, label: 'Home', href: '#home' },
-    { icon: Briefcase, label: 'Services', href: '#services' },
-    { icon: Star, label: 'Portfolio', href: '#portfolio' },
-    { icon: MessageSquare, label: 'Contact', href: '#contact' },
+    { icon: Home, label: 'Home', action: () => navigate('/') },
+    { icon: Briefcase, label: 'Services', action: () => navigate('/services') },
+    { icon: Star, label: 'Portfolio', action: () => navigate('/portfolio') },
+    { icon: MessageSquare, label: 'Contact', action: () => scrollToSection('contact') },
   ];
 
   return (
@@ -47,8 +69,9 @@ const FuturisticNavigation: React.FC = () => {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <motion.div
-              className="flex items-center space-x-2"
+              className="flex items-center space-x-2 cursor-pointer"
               whileHover={{ scale: 1.05 }}
+              onClick={() => navigate('/')}
             >
               <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center">
                 <Brain className="w-6 h-6 text-white" />
@@ -61,9 +84,9 @@ const FuturisticNavigation: React.FC = () => {
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-8">
               {navItems.map((item, index) => (
-                <motion.a
+                <motion.button
                   key={item.label}
-                  href={item.href}
+                  onClick={item.action}
                   className="flex items-center space-x-2 text-gray-300 hover:text-white transition-colors group"
                   initial={{ opacity: 0, y: -20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -72,7 +95,7 @@ const FuturisticNavigation: React.FC = () => {
                 >
                   <item.icon className="w-4 h-4 group-hover:text-blue-400 transition-colors" />
                   <span>{item.label}</span>
-                </motion.a>
+                </motion.button>
               ))}
             </div>
 
@@ -81,12 +104,14 @@ const FuturisticNavigation: React.FC = () => {
               <Button
                 variant="outline"
                 className="border-white/30 text-white hover:bg-white/10 backdrop-blur-sm"
+                onClick={() => navigate('/dashboard')}
               >
                 <Settings className="w-4 h-4 mr-2" />
                 Dashboard
               </Button>
               <Button
                 className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+                onClick={() => scrollToSection('contact')}
               >
                 <Zap className="w-4 h-4 mr-2" />
                 Get Started
@@ -123,10 +148,9 @@ const FuturisticNavigation: React.FC = () => {
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
             >
               {navItems.map((item, index) => (
-                <motion.a
+                <motion.button
                   key={item.label}
-                  href={item.href}
-                  onClick={() => setIsOpen(false)}
+                  onClick={item.action}
                   className="flex items-center space-x-4 text-2xl text-white hover:text-blue-400 transition-colors"
                   initial={{ opacity: 0, x: -50 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -136,7 +160,7 @@ const FuturisticNavigation: React.FC = () => {
                 >
                   <item.icon className="w-8 h-8" />
                   <span>{item.label}</span>
-                </motion.a>
+                </motion.button>
               ))}
               
               <div className="flex flex-col space-y-4 mt-8">
@@ -144,6 +168,7 @@ const FuturisticNavigation: React.FC = () => {
                   variant="outline"
                   size="lg"
                   className="border-white/30 text-white hover:bg-white/10 backdrop-blur-sm"
+                  onClick={() => navigate('/dashboard')}
                 >
                   <Settings className="w-5 h-5 mr-2" />
                   Dashboard
@@ -151,6 +176,7 @@ const FuturisticNavigation: React.FC = () => {
                 <Button
                   size="lg"
                   className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+                  onClick={() => scrollToSection('contact')}
                 >
                   <Zap className="w-5 h-5 mr-2" />
                   Get Started

@@ -50,15 +50,51 @@ const FuturisticChat: React.FC = () => {
     }
   };
 
-  // Voice recognition (placeholder for future implementation)
+  // Voice recognition implementation
   const toggleVoiceRecognition = () => {
-    setIsListening(!isListening);
-    // Voice recognition implementation would go here
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      if (isListening) {
+        // Stop listening
+        setIsListening(false);
+        // Speech recognition stop logic would go here
+      } else {
+        // Start listening
+        setIsListening(true);
+        
+        // Using the Web Speech API
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new SpeechRecognition();
+        
+        recognition.lang = 'en-US';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+        
+        recognition.onresult = (event: any) => {
+          const speechResult = event.results[0][0].transcript;
+          setInput(speechResult);
+          setIsListening(false);
+        };
+        
+        recognition.onerror = (event: any) => {
+          console.error('Speech recognition error', event.error);
+          setIsListening(false);
+        };
+        
+        recognition.onend = () => {
+          setIsListening(false);
+        };
+        
+        recognition.start();
+      }
+    } else {
+      alert('Speech recognition is not supported in your browser. Please try Chrome or Edge.');
+    }
   };
 
   if (!isOpen) {
     return (
       <motion.button
+        id="chat-trigger"
         onClick={() => setIsOpen(true)}
         className="fixed bottom-8 right-8 z-50 group"
         whileHover={{ scale: 1.1 }}
@@ -74,10 +110,9 @@ const FuturisticChat: React.FC = () => {
           </div>
         </div>
         <motion.div
-          className="absolute -top-12 right-0 bg-black/80 text-white px-3 py-1 rounded-lg text-sm opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap"
+          className="absolute -top-12 right-0 bg-black/80 text-white px-3 py-1 rounded-lg text-sm whitespace-nowrap"
           initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 0, y: 10 }}
-          whileHover={{ opacity: 1, y: 0 }}
+          animate={{ opacity: 1, y: 0 }}
         >
           Chat with AI Assistant
         </motion.div>
@@ -153,7 +188,7 @@ const FuturisticChat: React.FC = () => {
         )}
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
+        <div className="h-[calc(100%-132px)] overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
           <AnimatePresence>
             {messages.map((message, index) => (
               <motion.div

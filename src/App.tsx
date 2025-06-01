@@ -12,6 +12,11 @@ const Index = lazy(() => import("./pages/Index"));
 const FuturisticIndex = lazy(() => import("./pages/FuturisticIndex"));
 const InquiryPage = lazy(() => import("./pages/InquiryPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const ServicesPage = lazy(() => import("./pages/ServicesPage"));
+const ServiceDetailPage = lazy(() => import("./pages/ServiceDetailPage"));
+const PortfolioPage = lazy(() => import("./pages/PortfolioPage"));
+const AuthPage = lazy(() => import("./pages/AuthPage"));
+const DashboardPage = lazy(() => import("./pages/DashboardPage"));
 
 const queryClient = new QueryClient();
 
@@ -37,6 +42,11 @@ function App() {
                 <Route path="/" element={<FuturisticIndex />} />
                 <Route path="/classic" element={<Index />} />
                 <Route path="/inquiry" element={<InquiryPage />} />
+                <Route path="/services" element={<ServicesPage />} />
+                <Route path="/services/:serviceId" element={<ServiceDetailPage />} />
+                <Route path="/portfolio" element={<PortfolioPage />} />
+                <Route path="/auth" element={<AuthPage />} />
+                <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="/404" element={<NotFound />} />
                 <Route path="*" element={<Navigate to="/404" replace />} />
               </Routes>

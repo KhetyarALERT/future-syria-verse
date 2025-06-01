@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { 
   Sparkles, 
   Zap, 
@@ -16,9 +17,9 @@ import {
   TrendingUp
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import FuturisticChat from './FuturisticChat';
 
 const FuturisticHero: React.FC = () => {
+  const navigate = useNavigate();
   const [showChat, setShowChat] = useState(false);
 
   const services = [
@@ -26,31 +27,36 @@ const FuturisticHero: React.FC = () => {
       icon: Palette,
       title: 'Logo Design',
       description: 'AI-powered brand identities',
-      color: 'from-pink-500 to-rose-500'
+      color: 'from-pink-500 to-rose-500',
+      path: '/services/logo-design'
     },
     {
       icon: Code,
       title: 'Web Development',
       description: 'Next-gen digital experiences',
-      color: 'from-blue-500 to-cyan-500'
+      color: 'from-blue-500 to-cyan-500',
+      path: '/services/web-development'
     },
     {
       icon: ShoppingCart,
       title: 'E-commerce',
       description: 'Smart online stores',
-      color: 'from-green-500 to-emerald-500'
+      color: 'from-green-500 to-emerald-500',
+      path: '/services/ecommerce'
     },
     {
       icon: MessageSquare,
       title: 'AI Assistants',
       description: 'Intelligent automation',
-      color: 'from-purple-500 to-violet-500'
+      color: 'from-purple-500 to-violet-500',
+      path: '/services/ai-assistants'
     },
     {
       icon: TrendingUp,
       title: 'Digital Marketing',
       description: 'Growth-driven strategies',
-      color: 'from-orange-500 to-amber-500'
+      color: 'from-orange-500 to-amber-500',
+      path: '/services/digital-marketing'
     }
   ];
 
@@ -60,6 +66,16 @@ const FuturisticHero: React.FC = () => {
     { number: '24h', label: 'Response Time', icon: Zap },
     { number: '50+', label: 'AI Models Used', icon: Brain }
   ];
+
+  const scrollToContact = () => {
+    const element = document.getElementById('contact');
+    element?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const openDemoVideo = () => {
+    // Open a demo video modal or navigate to demo page
+    window.open('https://www.youtube.com/watch?v=dQw4w9WgXcQ', '_blank');
+  };
 
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 overflow-hidden">
@@ -77,12 +93,12 @@ const FuturisticHero: React.FC = () => {
             key={i}
             className="absolute w-1 h-1 bg-white/30 rounded-full"
             initial={{
-              x: Math.random() * window.innerWidth,
-              y: Math.random() * window.innerHeight,
+              x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1200),
+              y: Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 800),
             }}
             animate={{
-              x: Math.random() * window.innerWidth,
-              y: Math.random() * window.innerHeight,
+              x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1200),
+              y: Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 800),
             }}
             transition={{
               duration: Math.random() * 20 + 10,
@@ -141,7 +157,7 @@ const FuturisticHero: React.FC = () => {
             transition={{ delay: 0.7 }}
           >
             <Button
-              onClick={() => setShowChat(true)}
+              onClick={scrollToContact}
               size="lg"
               className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 rounded-full text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
             >
@@ -154,6 +170,7 @@ const FuturisticHero: React.FC = () => {
               variant="outline"
               size="lg"
               className="border-white/30 text-white hover:bg-white/10 px-8 py-4 rounded-full text-lg backdrop-blur-sm"
+              onClick={openDemoVideo}
             >
               <Play className="w-5 h-5 mr-2" />
               Watch Demo
@@ -176,7 +193,7 @@ const FuturisticHero: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.9 + index * 0.1 }}
               whileHover={{ scale: 1.05, y: -5 }}
-              onClick={() => setShowChat(true)}
+              onClick={() => navigate(service.path)}
             >
               <div className={`w-12 h-12 bg-gradient-to-r ${service.color} rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
                 <service.icon className="w-6 h-6 text-white" />
@@ -232,9 +249,6 @@ const FuturisticHero: React.FC = () => {
           </motion.div>
         </motion.div>
       </div>
-
-      {/* Chat Component */}
-      {showChat && <FuturisticChat />}
     </div>
   );
 };
