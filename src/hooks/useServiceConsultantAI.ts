@@ -278,11 +278,11 @@ ${service.questions[0]}`;
     try {
       const { error } = await supabase
         .from('inquiries')
-        .insert([{
+        .insert({
           name: inquiryData.name,
           email: inquiryData.email,
           phone: inquiryData.phone,
-          inquiry_type: 'service_request',
+          inquiry_type: 'service_inquiry',
           inquiry_text: `Service: ${inquiryData.service}\n\nDetails:\n${JSON.stringify(inquiryData, null, 2)}`,
           language: 'en',
           metadata: {
@@ -292,7 +292,7 @@ ${service.questions[0]}`;
             contact_details: inquiryData.contactDetails,
             preferred_time: inquiryData.preferredTime
           }
-        }]);
+        });
 
       if (error) throw error;
 
