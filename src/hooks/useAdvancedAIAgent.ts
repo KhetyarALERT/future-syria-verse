@@ -5,47 +5,56 @@ import { useTranslation } from 'react-i18next';
 
 export const useAdvancedAIAgent = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [shouldRedirectToForm, setShouldRedirectToForm] = useState(false);
   const { i18n } = useTranslation();
 
   const sendMessageToAI = async (message: string, conversationHistory: any[] = []) => {
     setIsLoading(true);
+    setShouldRedirectToForm(false);
     
     try {
       console.log('Sending message to AI:', message);
       
-      // Get enhanced company knowledge, recent inquiries, and AI config for context
+      // Check for pricing inquiries first
+      const lowerMessage = message.toLowerCase();
+      if (lowerMessage.includes('price') || lowerMessage.includes('cost') || lowerMessage.includes('سعر') || lowerMessage.includes('تكلفة') || lowerMessage.includes('budget') || lowerMessage.includes('quote')) {
+        setShouldRedirectToForm(true);
+        return generatePriceRedirectResponse(i18n.language);
+      }
+
+      // Get enhanced company knowledge without pricing
       const [servicesResponse, inquiriesResponse, configResponse] = await Promise.allSettled([
         supabase.from('service_examples').select('*').limit(20),
         supabase.from('inquiries').select('name, inquiry_text, inquiry_type').order('created_at', { ascending: false }).limit(10),
         supabase.from('ai_chat_config').select('*')
       ]);
 
-      // Enhanced company knowledge with realistic data
       const serviceExamples = servicesResponse.status === 'fulfilled' 
         ? servicesResponse.value.data || []
         : [];
 
       const companyKnowledge = {
         services: [
-          'Logo Design (starting from $50) - Premium brand identity creation',
-          'Website Development (starting from $200) - Modern, responsive web solutions',
-          'E-commerce Solutions (starting from $500) - Complete online stores',
-          'Social Media Management ($300/month) - Full social media presence',
-          'Digital Marketing Campaigns (starting from $400) - ROI-focused marketing',
-          'Smart CX Systems (starting from $800) - AI-powered customer experience',
-          'Personal AI Assistants (starting from $600) - Business automation',
-          'ERP Solutions (starting from $1200) - Enterprise resource planning'
+          'Logo Design - Premium brand identity creation with comprehensive design process',
+          'Website Development - Modern, responsive web solutions with latest technologies',
+          'E-commerce Solutions - Complete online stores with advanced features',
+          'Social Media Management - Full social media presence and engagement',
+          'Digital Marketing Campaigns - ROI-focused marketing strategies',
+          'Smart CX Systems - AI-powered customer experience solutions',
+          'Personal AI Assistants - Business automation and intelligent support',
+          'ERP Solutions - Enterprise resource planning systems'
         ],
         serviceExamples: serviceExamples.slice(0, 10),
-        paymentMethods: ['Credit Card via Stripe', 'Bank Transfer', 'PayPal', 'Cryptocurrency'],
+        paymentMethods: ['Consultation required for payment options'],
         locations: 'Global with focus on Middle East and Arabic-speaking regions',
         languages: ['English', 'Arabic'],
         specialties: [
           'Bilingual Arabic-English content creation',
           'Middle East market expertise',
-          'Islamic finance compliant solutions',
-          'Cultural adaptation services'
-        ]
+          'Custom solutions for each client',
+          'Comprehensive consultation process'
+        ],
+        approach: 'We focus on understanding your needs first through detailed consultation before providing customized solutions and quotes.'
       };
 
       const recentInquiries = inquiriesResponse.status === 'fulfilled' 
@@ -96,11 +105,12 @@ export const useAdvancedAIAgent = () => {
 
   return {
     sendMessageToAI,
-    isLoading
+    isLoading,
+    shouldRedirectToForm
   };
 };
 
-// Enhanced intelligent response generator with conversation context
+// Enhanced intelligent response generator without pricing
 const generateIntelligentResponse = (
   message: string, 
   language: string, 
@@ -109,72 +119,53 @@ const generateIntelligentResponse = (
 ) => {
   const lowerMessage = message.toLowerCase();
   const isArabic = language === 'ar';
-  
-  // Analyze conversation context
-  const hasDiscussedPricing = conversationHistory.some(msg => 
-    msg.content.toLowerCase().includes('price') || 
-    msg.content.toLowerCase().includes('cost') ||
-    msg.content.toLowerCase().includes('سعر') ||
-    msg.content.toLowerCase().includes('تكلفة')
-  );
 
-  const hasDiscussedServices = conversationHistory.some(msg =>
-    msg.content.toLowerCase().includes('service') ||
-    msg.content.toLowerCase().includes('خدمة')
-  );
-
-  // Greeting responses with dynamic context
+  // Greeting responses
   if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('مرحبا') || lowerMessage.includes('السلام')) {
     return isArabic 
-      ? `مرحباً وأهلاً وسهلاً! 🌟 أنا مساعد DigitalPro الذكي المدعوم بأحدث تقنيات الذكاء الاصطناعي!
+      ? `مرحباً وأهلاً وسهلاً! 🌟 أنا مساعد DigitalPro الذكي
 
-🎯 **ما يميزنا عن الآخرين:**
-• حلول رقمية متطورة ومبتكرة 100%
-• فريق خبراء متخصص في التكنولوجيا الحديثة
-• خدمة عملاء ذكية متاحة 24/7
+🎯 **ما يميزنا:**
+• حلول رقمية مخصصة ومبتكرة
+• فريق خبراء متخصص في أحدث التقنيات
+• خدمة استشارية شاملة ومجانية
 • نتائج مضمونة وقابلة للقياس
 
-🚀 **خدماتنا الرائدة:**
-• تصميم الشعارات - من 50$ (هويات بصرية لا تُنسى)
-• تطوير المواقع - من 200$ (تقنيات حديثة وسرعة فائقة)
-• المتاجر الإلكترونية - من 500$ (حلول تجارة ذكية)
-• إدارة وسائل التواصل - 300$/شهر (نمو مضمون وتفاعل عالي)
-• حملات التسويق الرقمي - من 400$ (عائد استثمار مضاعف)
-• أنظمة الذكاء الاصطناعي - من 800$ (تقنيات المستقبل)
+🚀 **خدماتنا الرئيسية:**
+• تصميم الشعارات - هويات بصرية مميزة ولا تُنسى
+• تطوير المواقع - مواقع حديثة وسريعة
+• المتاجر الإلكترونية - حلول تجارة متكاملة
+• إدارة وسائل التواصل - نمو مضمون وتفاعل عالي
+• التسويق الرقمي - استراتيجيات نمو فعالة
+• أنظمة الذكاء الاصطناعي - تقنيات المستقبل
 
-💡 **كيف يمكنني مساعدتك اليوم؟**
-- استشارة مجانية لمشروعك
-- تحليل احتياجاتك الرقمية
-- عرض سعر مخصص ومفصل
-- أمثلة حية من أعمالنا المتميزة
+💡 **نهجنا:**
+نبدأ بفهم احتياجاتك من خلال استشارة مجانية مفصلة، ثم نقدم حلول مخصصة تماماً لمشروعك.
 
-أخبرني عن حلمك الرقمي وسأحوله إلى واقع مذهل! ✨`
-      : `Hello and welcome! 🌟 I'm DigitalPro's advanced AI assistant powered by cutting-edge artificial intelligence!
+ما الخدمة التي تهمك؟ أم تفضل البدء بجلسة استشارة مجانية؟ ✨`
+      : `Hello and welcome! 🌟 I'm DigitalPro's intelligent assistant
 
 🎯 **What sets us apart:**
-• 100% innovative and advanced digital solutions
-• Expert team specializing in modern technology
-• Smart 24/7 customer service
+• Custom and innovative digital solutions
+• Expert team specializing in latest technologies
+• Comprehensive free consultation service
 • Guaranteed and measurable results
 
-🚀 **Our Leading Services:**
-• Logo Design - from $50 (Unforgettable visual identities)
-• Website Development - from $200 (Modern tech & lightning speed)
-• E-commerce Solutions - from $500 (Smart commerce solutions)
-• Social Media Management - $300/month (Guaranteed growth & high engagement)
-• Digital Marketing Campaigns - from $400 (Multiplied ROI)
-• AI Systems - from $800 (Future technologies)
+🚀 **Our Core Services:**
+• Logo Design - Distinctive and memorable visual identities
+• Website Development - Modern and fast websites
+• E-commerce Solutions - Complete commerce solutions
+• Social Media Management - Guaranteed growth and high engagement
+• Digital Marketing - Effective growth strategies
+• AI Systems - Future technologies
 
-💡 **How can I help you today?**
-- Free consultation for your project
-- Analysis of your digital needs
-- Custom detailed quote
-- Live examples of our outstanding work
+💡 **Our Approach:**
+We start by understanding your needs through a detailed free consultation, then provide completely customized solutions for your project.
 
-Tell me about your digital dream and I'll turn it into amazing reality! ✨`;
+Which service interests you? Or would you prefer to start with a free consultation? ✨`;
   }
 
-  // Service-specific responses with enhanced details
+  // Service-specific responses without pricing
   if (lowerMessage.includes('logo') || lowerMessage.includes('شعار')) {
     return isArabic
       ? `🎨 **تصميم الشعارات - خبرتنا وشغفنا!**
@@ -191,15 +182,8 @@ Tell me about your digital dream and I'll turn it into amazing reality! ✨`;
 • تعديلات غير محدودة حتى الرضا التام
 • جميع التنسيقات (PNG, SVG, AI, PDF, EPS)
 • دليل إرشادات العلامة التجارية الكامل
-• اختلافات للاستخدامات المختلفة
-• حقوق الملكية الكاملة
 
-**💰 الاستثمار:**
-• باقة أساسية: 50$ - 100$
-• باقة احترافية: 100$ - 200$
-• باقة هوية كاملة: 200$ - 500$
-
-${!hasDiscussedPricing ? '💡 هل تريد معرفة تفاصيل الأسعار أم تفضل مشاهدة أمثلة من أعمالنا؟' : '🎯 جاهز لبدء مشروع شعارك؟ أخبرني عن نوع عملك!'}`
+هل تود معرفة المزيد عن عمليتنا أم تفضل البدء بجلسة استشارة مجانية لمناقشة مشروعك؟ 🎯`
       : `🎨 **Logo Design - Our Expertise & Passion!**
 
 **🌟 Our Creative Process:**
@@ -214,226 +198,73 @@ ${!hasDiscussedPricing ? '💡 هل تريد معرفة تفاصيل الأسع�
 • Unlimited revisions until perfect satisfaction
 • All formats (PNG, SVG, AI, PDF, EPS)
 • Complete brand guideline documentation
-• Variations for different uses
-• Full ownership rights
 
-**💰 Investment:**
-• Basic package: $50 - $100
-• Professional package: $100 - $200
-• Complete identity package: $200 - $500
-
-${!hasDiscussedPricing ? '💡 Would you like pricing details or prefer to see examples of our work?' : '🎯 Ready to start your logo project? Tell me about your business!'}`;
+Would you like to know more about our process or prefer to start with a free consultation to discuss your project? 🎯`;
   }
 
-  if (lowerMessage.includes('website') || lowerMessage.includes('web') || lowerMessage.includes('موقع')) {
-    return isArabic
-      ? `💻 **تطوير المواقع الإلكترونية - تقنيات المستقبل!**
-
-**🚀 التقنيات المتقدمة التي نستخدمها:**
-• React.js & Next.js (أحدث تقنيات الويب)
-• Node.js & Express (خوادم قوية وسريعة)
-• MongoDB & PostgreSQL (قواعد بيانات متطورة)
-• AWS & Vercel (استضافة سحابية عالمية)
-• AI Integration (تكامل الذكاء الاصطناعي)
-
-**⚡ أنواع المواقع:**
-• مواقع الشركات (تصميم احترافي وأنيق)
-• المتاجر الإلكترونية (نظام دفع آمن متكامل)
-• منصات التعليم الإلكتروني
-• تطبيقات الويب التفاعلية
-• مواقع الأخبار والمدونات
-
-**🔧 الميزات المضمونة:**
-✅ تصميم متجاوب 100% (جميع الأجهزة)
-✅ سرعة تحميل فائقة (أقل من 3 ثواني)
-✅ تحسين محركات البحث SEO
-✅ أمان متقدم SSL وحماية DDoS
-✅ لوحة تحكم سهلة الاستخدام
-✅ دعم فني مدى الحياة
-
-**💎 الاستثمار الذكي:**
-• موقع تعريفي: 200$ - 500$
-• موقع تجاري متقدم: 500$ - 1500$
-• متجر إلكتروني: 800$ - 3000$
-• تطبيق ويب مخصص: 1500$ - 5000$
-
-${!hasDiscussedServices ? '🎯 ما نوع الموقع الذي تحلم به؟ سأقدم لك خطة مفصلة!' : '🚀 جاهز لبناء موقعك المتطور؟'}`
-      : `💻 **Website Development - Future Technologies!**
-
-**🚀 Advanced Technologies We Use:**
-• React.js & Next.js (Latest web technologies)
-• Node.js & Express (Powerful & fast servers)
-• MongoDB & PostgreSQL (Advanced databases)
-• AWS & Vercel (Global cloud hosting)
-• AI Integration (Artificial intelligence integration)
-
-**⚡ Website Types:**
-• Corporate websites (Professional & elegant design)
-• E-commerce stores (Integrated secure payment system)
-• E-learning platforms
-• Interactive web applications
-• News & blog websites
-
-**🔧 Guaranteed Features:**
-✅ 100% responsive design (all devices)
-✅ Lightning-fast loading (under 3 seconds)
-✅ SEO optimization
-✅ Advanced SSL security & DDoS protection
-✅ User-friendly control panel
-✅ Lifetime technical support
-
-**💎 Smart Investment:**
-• Landing page: $200 - $500
-• Advanced business website: $500 - $1,500
-• E-commerce store: $800 - $3,000
-• Custom web application: $1,500 - $5,000
-
-${!hasDiscussedServices ? '🎯 What type of website do you dream of? I\'ll provide a detailed plan!' : '🚀 Ready to build your advanced website?'}`;
-  }
-
-  if (lowerMessage.includes('price') || lowerMessage.includes('cost') || lowerMessage.includes('سعر') || lowerMessage.includes('تكلفة')) {
-    return isArabic
-      ? `💰 **دليل الأسعار الشامل - استثمار ذكي في مستقبلك الرقمي**
-
-🎨 **تصميم الشعارات:**
-• أساسي: 50$ - 100$ (شعار + 3 تعديلات)
-• احترافي: 100$ - 200$ (شعار + دليل + تنسيقات)
-• متميز: 200$ - 500$ (هوية كاملة + تصاميم إضافية)
-
-💻 **تطوير المواقع:**
-• صفحة واحدة: 200$ - 500$
-• موقع شركة: 500$ - 1500$
-• متجر إلكتروني: 800$ - 3000$
-• تطبيق ويب: 1500$ - 5000$
-
-📱 **إدارة وسائل التواصل:**
-• باقة أساسية: 300$/شهر (منصتين)
-• باقة متقدمة: 500$/شهر (4 منصات)
-• باقة شاملة: 800$/شهر (جميع المنصات + إعلانات)
-
-📈 **التسويق الرقمي:**
-• حملة أساسية: 400$ - 800$
-• حملة متطورة: 800$ - 2000$
-• استراتيجية شاملة: 2000$ - 5000$
-
-🤖 **الأنظمة الذكية:**
-• شات بوت: 600$ - 1200$
-• نظام CX: 800$ - 2500$
-• نظام ERP: 1200$ - 8000$
-
-🎁 **عروض خاصة حالياً:**
-• خصم 25% للعملاء الجدد
-• باقات مجمعة بأسعار مخفضة
-• ضمان استرداد المال خلال 30 يوم
-• دفع مرن بالتقسيط
-
-💎 أي خدمة تثير اهتمامك؟ سأقدم لك عرض سعر مخصص!`
-      : `💰 **Comprehensive Pricing Guide - Smart Investment in Your Digital Future**
-
-🎨 **Logo Design:**
-• Basic: $50 - $100 (Logo + 3 revisions)
-• Professional: $100 - $200 (Logo + guidelines + formats)
-• Premium: $200 - $500 (Complete identity + additional designs)
-
-💻 **Website Development:**
-• Single page: $200 - $500
-• Company website: $500 - $1,500
-• E-commerce store: $800 - $3,000
-• Web application: $1,500 - $5,000
-
-📱 **Social Media Management:**
-• Basic package: $300/month (2 platforms)
-• Advanced package: $500/month (4 platforms)
-• Complete package: $800/month (all platforms + ads)
-
-📈 **Digital Marketing:**
-• Basic campaign: $400 - $800
-• Advanced campaign: $800 - $2,000
-• Comprehensive strategy: $2,000 - $5,000
-
-🤖 **Smart Systems:**
-• Chatbot: $600 - $1,200
-• CX System: $800 - $2,500
-• ERP System: $1,200 - $8,000
-
-🎁 **Current Special Offers:**
-• 25% discount for new clients
-• Bundled packages at reduced rates
-• 30-day money-back guarantee
-• Flexible installment payments
-
-💎 Which service interests you? I'll provide a custom quote!`;
-  }
-
-  // Context-aware responses based on conversation history
-  if (conversationHistory.length > 2) {
-    const contextResponse = isArabic
-      ? `أرى أنك مهتم بخدماتنا! 🎯 
-      
-دعني أقدم لك نصيحة شخصية: بناءً على محادثتنا، أعتقد أن ${hasDiscussedPricing ? 'أفضل خطوة تالية هي مناقشة متطلباتك المحددة' : 'البدء بمعرفة احتياجاتك بالتفصيل'} سيساعدك في اتخاذ القرار الأمثل.
-
-🚀 **التالي:**
-• جدولة مكالمة استشارية مجانية (30 دقيقة)
-• تحليل مجاني لوضعك الحالي
-• خطة عمل مخصصة لمشروعك
-• عرض سعر شامل ومفصل
-
-ما رأيك أن نحدد موعد للنقاش بالتفصيل؟`
-      : `I can see you're interested in our services! 🎯
-      
-Let me give you personal advice: Based on our conversation, I think ${hasDiscussedPricing ? 'the best next step is discussing your specific requirements' : 'starting with understanding your detailed needs'} will help you make the optimal decision.
-
-🚀 **Next Steps:**
-• Schedule a free consultation call (30 minutes)
-• Free analysis of your current situation
-• Custom action plan for your project
-• Comprehensive detailed quote
-
-How about we schedule a detailed discussion?`;
-  }
-
-  // Default intelligent response with personalization
+  // Default intelligent response
   return isArabic
     ? `شكراً لك على تواصلك معنا! 😊 
 
 أنا هنا لمساعدتك في تحقيق أهدافك الرقمية بأحدث التقنيات والحلول المبتكرة.
 
 🎯 **يمكنني مساعدتك في:**
-• تصميم هوية بصرية مميزة ومؤثرة
-• تطوير مواقع ومتاجر إلكترونية متطورة
-• حملات تسويقية ذكية عالية التحويل
-• أنظمة ذكاء اصطناعي متقدمة
-• حلول أتمتة الأعمال
+• فهم خدماتنا المختلفة
+• تحديد الحل الأمثل لاحتياجاتك
+• ترتيب جلسة استشارة مجانية
+• الإجابة على جميع أسئلتك
 
-💬 **أخبرني بالتفصيل عن:**
+💬 **أخبرني عن:**
 - نوع عملك أو مشروعك
 - التحديات التي تواجهها
 - أهدافك المستقبلية
-- الميزانية المتاحة
-- الجدول الزمني المطلوب
 
-سأقوم بتحليل احتياجاتك وتقديم الحل الأمثل! 🚀
-
-${conversationHistory.length > 1 ? 'بناءً على نقاشنا السابق، أعتقد أن لديك رؤية واضحة. دعنا نبدأ!' : 'مرحباً بك في رحلة التحول الرقمي معنا!'}`
+سأقوم بتوجيهك للحل الأمثل وترتيب استشارة مجانية مع فريقنا المتخصص! 🚀`
     : `Thank you for reaching out! 😊
 
 I'm here to help you achieve your digital goals with the latest technologies and innovative solutions.
 
 🎯 **I can help you with:**
-• Creating distinctive and impactful visual identity
-• Developing advanced websites and e-commerce stores
-• Smart high-conversion marketing campaigns
-• Advanced artificial intelligence systems
-• Business automation solutions
+• Understanding our different services
+• Identifying the optimal solution for your needs
+• Arranging a free consultation
+• Answering all your questions
 
-💬 **Tell me in detail about:**
+💬 **Tell me about:**
 - Your business or project type
 - Challenges you're facing
 - Your future goals
-- Available budget
-- Required timeline
 
-I'll analyze your needs and provide the optimal solution! 🚀
+I'll guide you to the optimal solution and arrange a free consultation with our specialized team! 🚀`;
+};
 
-${conversationHistory.length > 1 ? 'Based on our previous discussion, I think you have a clear vision. Let\'s get started!' : 'Welcome to your digital transformation journey with us!'}`;
+// Generate price redirect response
+const generatePriceRedirectResponse = (language: string) => {
+  return language === 'ar'
+    ? `أفهم اهتمامك بمعرفة التفاصيل المالية! 💼
+
+نحن نؤمن بتقديم عروض مخصصة تناسب احتياجاتك تماماً، لذلك نفضل أولاً فهم مشروعك بالتفصيل.
+
+🎯 **لماذا نتبع هذا النهج؟**
+• كل مشروع فريد ومتطلباته مختلفة
+• نريد تقديم أفضل قيمة مقابل استثمارك
+• نضمن عدم دفعك مقابل خدمات لا تحتاجها
+
+📝 **الخطوة التالية:**
+سأساعدك في فهم احتياجاتك وترتيب جلسة استشارة مجانية مع فريقنا، وسيقومون بتقديم عرض مفصل ومخصص خلال 24 ساعة.
+
+هل تود البدء في مناقشة مشروعك؟`
+    : `I understand your interest in the financial details! 💼
+
+We believe in providing customized proposals that perfectly match your needs, so we prefer to first understand your project in detail.
+
+🎯 **Why do we follow this approach?**
+• Every project is unique with different requirements
+• We want to provide the best value for your investment
+• We ensure you don't pay for services you don't need
+
+📝 **Next Step:**
+I'll help you understand your needs and arrange a free consultation with our team, and they'll provide a detailed, customized proposal within 24 hours.
+
+Would you like to start discussing your project?`;
 };

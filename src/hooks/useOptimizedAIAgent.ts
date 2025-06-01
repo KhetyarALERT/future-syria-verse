@@ -11,8 +11,9 @@ export const useOptimizedAIAgent = () => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [responseCache, setResponseCache] = useState<Map<string, string>>(new Map());
+  const [shouldRedirectToForm, setShouldRedirectToForm] = useState(false);
 
-  // Intelligent response patterns
+  // Intelligent response patterns without pricing
   const responsePatterns = useMemo(() => ({
     ar: {
       greeting: [
@@ -20,13 +21,13 @@ export const useOptimizedAIAgent = () => {
         "أهلاً وسهلاً! أنا هنا لمساعدتك في جميع احتياجاتك الرقمية. ما الذي تبحث عنه؟ ✨"
       ],
       services: {
-        logo: "تصميم الشعارات هو تخصصنا! يمكننا إنشاء شعار احترافي ومميز يعكس هوية علامتك التجارية. نقدم تصاميم حديثة ومبتكرة مع مراجعات مجانية حتى تحصل على النتيجة المثالية. 🎨",
-        website: "تطوير المواقع الإلكترونية الحديثة والمتجاوبة هو من أقوى خدماتنا. نبني مواقع سريعة وآمنة مع تحسين محركات البحث وتجربة مستخدم استثنائية. 💻",
-        marketing: "التسويق الرقمي المتقدم يشمل إدارة وسائل التواصل الاجتماعي، والإعلانات المدفوعة، وتحسين محركات البحث، وتحليل البيانات لتحقيق أفضل النتائج. 📈",
-        ecommerce: "حلول التجارة الإلكترونية المتكاملة تشمل بناء المتاجر الإلكترونية، وأنظمة الدفع، وإدارة المخزون، والشحن، مع لوحة تحكم سهلة الاستخدام. 🛒"
+        logo: "تصميم الشعارات هو تخصصنا! نقوم بإنشاء هويات بصرية مميزة وفريدة تعكس جوهر علامتك التجارية. عمليتنا تشمل البحث والتحليل، ثم تطوير مفاهيم متعددة، والتنقيح حتى الوصول للتصميم المثالي. 🎨\n\nهل تود معرفة المزيد عن عمليتنا أم تفضل البدء في نموذج طلب مخصص؟",
+        website: "تطوير المواقع الإلكترونية الحديثة والمتجاوبة هو من أقوى خدماتنا. نبني مواقع سريعة وآمنة مع تحسين محركات البحث وتجربة مستخدم استثنائية باستخدام أحدث التقنيات. 💻\n\nما نوع الموقع الذي تحتاجه؟ سأساعدك في تحديد المتطلبات المناسبة.",
+        marketing: "التسويق الرقمي المتقدم يشمل إدارة وسائل التواصل الاجتماعي، والإعلانات المدفوعة، وتحسين محركات البحث، وتحليل البيانات لتحقيق أفضل النتائج. 📈\n\nما هي أهدافك التسويقية؟ دعني أساعدك في وضع الاستراتيجية المناسبة.",
+        ecommerce: "حلول التجارة الإلكترونية المتكاملة تشمل بناء المتاجر الإلكترونية، وأنظمة الدفع، وإدارة المخزون، والشحن، مع لوحة تحكم سهلة الاستخدام. 🛒\n\nما نوع المنتجات التي تريد بيعها؟ سأساعدك في تصميم المتجر المثالي."
       },
-      quote: "للحصول على عرض سعر مخصص، أحتاج لمعرفة تفاصيل أكثر عن مشروعك. يمكنك ملء النموذج وسنتواصل معك خلال 24 ساعة بعرض مفصل. 💼",
-      contact: "يمكنك التواصل معنا عبر الواتساب أو البريد الإلكتروني أو هذه المحادثة المباشرة. فريقنا متاح لخدمتك 24/7. 📞"
+      priceRedirect: "أفهم اهتمامك بمعرفة التكلفة! نحن نقدم عروض أسعار مخصصة حسب احتياجاتك المحددة. دعني أوجهك لملء نموذج سريع يساعدنا في فهم مشروعك وتقديم عرض دقيق ومفصل. 📋",
+      consultation: "أقترح أن نبدأ بجلسة استشارة مجانية لفهم احتياجاتك بالتفصيل. هل تود ملء نموذج سريع ليتواصل معك فريقنا؟ 💼"
     },
     en: {
       greeting: [
@@ -34,13 +35,13 @@ export const useOptimizedAIAgent = () => {
         "Welcome! I'm here to assist with all your digital needs. What are you looking for? ✨"
       ],
       services: {
-        logo: "Logo design is our specialty! We create professional and unique logos that reflect your brand identity. We offer modern and innovative designs with free revisions until you get the perfect result. 🎨",
-        website: "Modern and responsive website development is one of our strongest services. We build fast and secure websites with SEO optimization and exceptional user experience. 💻",
-        marketing: "Advanced digital marketing includes social media management, paid advertising, SEO optimization, and data analytics to achieve the best results. 📈",
-        ecommerce: "Complete e-commerce solutions include building online stores, payment systems, inventory management, and shipping, with an easy-to-use control panel. 🛒"
+        logo: "Logo design is our specialty! We create distinctive and unique visual identities that reflect your brand essence. Our process includes research and analysis, then developing multiple concepts, and refining until we reach the perfect design. 🎨\n\nWould you like to know more about our process or prefer to start with a custom request form?",
+        website: "Modern and responsive website development is one of our strongest services. We build fast and secure websites with SEO optimization and exceptional user experience using the latest technologies. 💻\n\nWhat type of website do you need? I'll help you determine the right requirements.",
+        marketing: "Advanced digital marketing includes social media management, paid advertising, SEO optimization, and data analytics to achieve the best results. 📈\n\nWhat are your marketing goals? Let me help you create the right strategy.",
+        ecommerce: "Complete e-commerce solutions include building online stores, payment systems, inventory management, and shipping, with an easy-to-use control panel. 🛒\n\nWhat type of products do you want to sell? I'll help you design the perfect store."
       },
-      quote: "To get a custom quote, I need to know more details about your project. You can fill out the form and we'll contact you within 24 hours with a detailed proposal. 💼",
-      contact: "You can contact us via WhatsApp, email, or this live chat. Our team is available to serve you 24/7. 📞"
+      priceRedirect: "I understand your interest in knowing the cost! We provide customized quotes based on your specific needs. Let me guide you to fill out a quick form that helps us understand your project and provide an accurate, detailed proposal. 📋",
+      consultation: "I suggest we start with a free consultation to understand your needs in detail. Would you like to fill out a quick form for our team to contact you? 💼"
     }
   }), []);
 
@@ -48,6 +49,12 @@ export const useOptimizedAIAgent = () => {
     const patterns = responsePatterns[language as 'ar' | 'en'] || responsePatterns.en;
     const lowerInput = input.toLowerCase();
     
+    // Check for pricing inquiries and set redirect flag
+    if (lowerInput.includes('price') || lowerInput.includes('cost') || lowerInput.includes('سعر') || lowerInput.includes('تكلفة') || lowerInput.includes('budget') || lowerInput.includes('quote')) {
+      setShouldRedirectToForm(true);
+      return patterns.priceRedirect;
+    }
+
     // Check cache first
     const cacheKey = `${language}-${lowerInput}`;
     if (responseCache.has(cacheKey)) {
@@ -56,7 +63,7 @@ export const useOptimizedAIAgent = () => {
 
     let response = '';
 
-    // Context-aware responses
+    // Context-aware responses without pricing
     if (lowerInput.includes('logo') || lowerInput.includes('شعار')) {
       response = patterns.services.logo;
     } else if (lowerInput.includes('website') || lowerInput.includes('موقع')) {
@@ -65,18 +72,16 @@ export const useOptimizedAIAgent = () => {
       response = patterns.services.marketing;
     } else if (lowerInput.includes('ecommerce') || lowerInput.includes('متجر')) {
       response = patterns.services.ecommerce;
-    } else if (lowerInput.includes('quote') || lowerInput.includes('price') || lowerInput.includes('سعر') || lowerInput.includes('عرض')) {
-      response = patterns.quote;
-    } else if (lowerInput.includes('contact') || lowerInput.includes('تواصل')) {
-      response = patterns.contact;
+    } else if (lowerInput.includes('consultation') || lowerInput.includes('استشارة')) {
+      response = patterns.consultation;
     } else if (history.length <= 1) {
       // First interaction
       response = patterns.greeting[Math.floor(Math.random() * patterns.greeting.length)];
     } else {
       // Default helpful response
       response = language === 'ar' 
-        ? `شكراً لك على استفسارك! يمكنني مساعدتك في تصميم الشعارات، تطوير المواقع، التسويق الرقمي، والتجارة الإلكترونية. ما الخدمة التي تهمك أكثر؟ 😊`
-        : `Thank you for your inquiry! I can help you with logo design, website development, digital marketing, and e-commerce solutions. Which service interests you most? 😊`;
+        ? `شكراً لك على استفسارك! يمكنني مساعدتك في تصميم الشعارات، تطوير المواقع، التسويق الرقمي، والتجارة الإلكترونية. ما الخدمة التي تهمك أكثر؟ أم تفضل البدء بجلسة استشارة مجانية؟ 😊`
+        : `Thank you for your inquiry! I can help you with logo design, website development, digital marketing, and e-commerce solutions. Which service interests you most? Or would you prefer to start with a free consultation? 😊`;
     }
 
     // Cache the response
@@ -94,6 +99,7 @@ export const useOptimizedAIAgent = () => {
     }
 
     setIsLoading(true);
+    setShouldRedirectToForm(false);
     
     try {
       // Simulate network delay for realism
@@ -123,6 +129,7 @@ export const useOptimizedAIAgent = () => {
   return {
     sendMessageToAI,
     isLoading,
+    shouldRedirectToForm,
     clearCache: () => setResponseCache(new Map())
   };
 };
