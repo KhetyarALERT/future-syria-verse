@@ -1,9 +1,9 @@
 
 import React from 'react';
-import FuturisticApp from '@/components/futuristic/FuturisticApp';
+import EnhancedFuturisticApp from '@/components/futuristic/EnhancedFuturisticApp';
 
 const FuturisticIndex: React.FC = () => {
-  return <FuturisticApp />;
+  return <EnhancedFuturisticApp />;
 };
 
 export default FuturisticIndex;
