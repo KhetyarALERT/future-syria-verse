@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Send, CheckCircle, User, Mail, Phone, MessageSquare, Calendar, DollarSign } from 'lucide-react';
+import { Send, CheckCircle, User, Mail, Phone, MessageSquare, Calendar, DollarSign, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -15,9 +15,18 @@ interface SmartContactFormProps {
   onClose?: () => void;
 }
 
+interface FormErrors {
+  name?: string;
+  email?: string;
+  serviceType?: string;
+  businessType?: string;
+  requirements?: string;
+}
+
 const SmartContactForm: React.FC<SmartContactFormProps> = ({ prefilledData, onClose }) => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState<FormErrors>({});
   const [formData, setFormData] = useState({
     name: prefilledData?.name || '',
     email: prefilledData?.email || '',
@@ -56,54 +65,118 @@ const SmartContactForm: React.FC<SmartContactFormProps> = ({ prefilledData, onCl
     { value: 'flexible', label: 'Flexible timeline' }
   ];
 
+  const validateForm = () => {
+    const newErrors: FormErrors = {};
+    
+    if (!formData.name.trim()) {
+      newErrors.name = 'Name is required';
+    }
+    
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email address';
+    }
+    
+    if (!formData.serviceType) {
+      newErrors.serviceType = 'Please select a service';
+    }
+    
+    if (!formData.businessType.trim()) {
+      newErrors.businessType = 'Business type is required';
+    }
+    
+    if (!formData.requirements.trim()) {
+      newErrors.requirements = 'Please describe your requirements';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!validateForm()) {
+      toast({
+        title: "Please fix the errors",
+        description: "Fill in all required fields marked in red.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      const { error } = await supabase
+      // Create inquiry with proper metadata structure
+      const { data, error } = await supabase
         .from('inquiries')
         .insert({
           name: formData.name,
           email: formData.email,
           phone: formData.phone || null,
           inquiry_type: 'service_inquiry',
-          inquiry_text: `Service: ${formData.serviceType}
-Business Type: ${formData.businessType}
-Budget: ${formData.budget}
-Timeline: ${formData.timeline}
-Requirements: ${formData.requirements}
-Additional Info: ${formData.additionalInfo}`,
+          inquiry_text: `Project Requirements: ${formData.requirements}${formData.additionalInfo ? '\n\nAdditional Information: ' + formData.additionalInfo : ''}`,
           language: 'en',
           preferred_contact_method: formData.contactPreference,
           metadata: {
-            source: 'smart_form',
+            source: 'smart_contact_form',
             service_type: formData.serviceType,
             budget_range: formData.budget,
             timeline: formData.timeline,
-            business_type: formData.businessType
+            business_type: formData.businessType,
+            contact_preference: formData.contactPreference,
+            submission_timestamp: new Date().toISOString()
           }
-        });
+        })
+        .select()
+        .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
+
+      console.log('Form submitted successfully:', data);
 
       toast({
         title: "Request Submitted Successfully! 🎉",
         description: "Our team will contact you within 24 hours with a customized proposal.",
       });
 
-      if (onClose) onClose();
+      // Reset form and close modal
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        serviceType: '',
+        businessType: '',
+        budget: '',
+        timeline: '',
+        requirements: '',
+        additionalInfo: '',
+        contactPreference: 'email'
+      });
+      
+      if (onClose) {
+        setTimeout(() => onClose(), 1500);
+      }
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error submitting form:', error);
       toast({
         title: "Submission Error",
-        description: "Please try again or contact us directly.",
+        description: error.message || "Please try again or contact us directly.",
         variant: "destructive"
       });
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const getFieldClassName = (fieldName: keyof FormErrors, baseClassName: string) => {
+    return `${baseClassName} ${errors[fieldName] ? 'border-red-500 focus:border-red-500' : 'border-slate-600 focus:border-blue-500'}`;
   };
 
   return (
@@ -114,12 +187,24 @@ Additional Info: ${formData.additionalInfo}`,
     >
       <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-slate-900 border-blue-500/20">
         <div className="p-6">
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold text-white mb-2">Tell Us About Your Project</h2>
-            <p className="text-gray-300">Help us understand your needs so we can provide the perfect solution.</p>
+          <div className="flex justify-between items-start mb-6">
+            <div>
+              <h2 className="text-2xl font-bold text-white mb-2">Tell Us About Your Project</h2>
+              <p className="text-gray-300">Help us understand your needs so we can provide the perfect solution.</p>
+            </div>
+            {onClose && (
+              <Button
+                onClick={onClose}
+                variant="ghost"
+                size="sm"
+                className="text-gray-400 hover:text-white"
+              >
+                <X className="w-5 h-5" />
+              </Button>
+            )}
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-5">
             {/* Personal Information */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -129,11 +214,15 @@ Additional Info: ${formData.additionalInfo}`,
                 </label>
                 <Input
                   value={formData.name}
-                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                  onChange={(e) => {
+                    setFormData(prev => ({ ...prev, name: e.target.value }));
+                    if (errors.name) setErrors(prev => ({ ...prev, name: undefined }));
+                  }}
                   required
-                  className="bg-slate-800 border-slate-600 text-white"
+                  className={getFieldClassName('name', 'bg-slate-800 text-white')}
                   placeholder="Your full name"
                 />
+                {errors.name && <p className="text-red-400 text-sm mt-1">{errors.name}</p>}
               </div>
 
               <div>
@@ -144,13 +233,19 @@ Additional Info: ${formData.additionalInfo}`,
                 <Input
                   type="email"
                   value={formData.email}
-                  onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                  onChange={(e) => {
+                    setFormData(prev => ({ ...prev, email: e.target.value }));
+                    if (errors.email) setErrors(prev => ({ ...prev, email: undefined }));
+                  }}
                   required
-                  className="bg-slate-800 border-slate-600 text-white"
+                  className={getFieldClassName('email', 'bg-slate-800 text-white')}
                   placeholder="your@email.com"
                 />
+                {errors.email && <p className="text-red-400 text-sm mt-1">{errors.email}</p>}
               </div>
+            </div>
 
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
                   <Phone className="w-4 h-4" />
@@ -169,8 +264,14 @@ Additional Info: ${formData.additionalInfo}`,
                   <MessageSquare className="w-4 h-4" />
                   Service Needed *
                 </label>
-                <Select value={formData.serviceType} onValueChange={(value) => setFormData(prev => ({ ...prev, serviceType: value }))}>
-                  <SelectTrigger className="bg-slate-800 border-slate-600 text-white">
+                <Select 
+                  value={formData.serviceType} 
+                  onValueChange={(value) => {
+                    setFormData(prev => ({ ...prev, serviceType: value }));
+                    if (errors.serviceType) setErrors(prev => ({ ...prev, serviceType: undefined }));
+                  }}
+                >
+                  <SelectTrigger className={getFieldClassName('serviceType', 'bg-slate-800 text-white')}>
                     <SelectValue placeholder="Select a service" />
                   </SelectTrigger>
                   <SelectContent>
@@ -181,6 +282,7 @@ Additional Info: ${formData.additionalInfo}`,
                     ))}
                   </SelectContent>
                 </Select>
+                {errors.serviceType && <p className="text-red-400 text-sm mt-1">{errors.serviceType}</p>}
               </div>
             </div>
 
@@ -191,11 +293,15 @@ Additional Info: ${formData.additionalInfo}`,
               </label>
               <Input
                 value={formData.businessType}
-                onChange={(e) => setFormData(prev => ({ ...prev, businessType: e.target.value }))}
+                onChange={(e) => {
+                  setFormData(prev => ({ ...prev, businessType: e.target.value }));
+                  if (errors.businessType) setErrors(prev => ({ ...prev, businessType: undefined }));
+                }}
                 required
-                className="bg-slate-800 border-slate-600 text-white"
+                className={getFieldClassName('businessType', 'bg-slate-800 text-white')}
                 placeholder="e.g., Restaurant, E-commerce, Clinic, Startup..."
               />
+              {errors.businessType && <p className="text-red-400 text-sm mt-1">{errors.businessType}</p>}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -244,11 +350,15 @@ Additional Info: ${formData.additionalInfo}`,
               </label>
               <Textarea
                 value={formData.requirements}
-                onChange={(e) => setFormData(prev => ({ ...prev, requirements: e.target.value }))}
+                onChange={(e) => {
+                  setFormData(prev => ({ ...prev, requirements: e.target.value }));
+                  if (errors.requirements) setErrors(prev => ({ ...prev, requirements: undefined }));
+                }}
                 required
-                className="bg-slate-800 border-slate-600 text-white min-h-[100px]"
+                className={getFieldClassName('requirements', 'bg-slate-800 text-white min-h-[100px]')}
                 placeholder="Describe what you need in detail..."
               />
+              {errors.requirements && <p className="text-red-400 text-sm mt-1">{errors.requirements}</p>}
             </div>
 
             <div>
@@ -280,22 +390,12 @@ Additional Info: ${formData.additionalInfo}`,
               </Select>
             </div>
 
-            {/* Submit Buttons */}
-            <div className="flex gap-3 pt-4">
-              {onClose && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={onClose}
-                  className="flex-1 border-slate-600 text-gray-300 hover:bg-slate-800"
-                >
-                  Cancel
-                </Button>
-              )}
+            {/* Submit Button */}
+            <div className="pt-4">
               <Button
                 type="submit"
-                disabled={isSubmitting || !formData.name || !formData.email || !formData.serviceType || !formData.businessType || !formData.requirements}
-                className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                disabled={isSubmitting}
+                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
               >
                 {isSubmitting ? (
                   <div className="flex items-center gap-2">

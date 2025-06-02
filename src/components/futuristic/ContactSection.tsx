@@ -1,4 +1,3 @@
-
 import React, { useRef, useState } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { 
@@ -60,17 +59,6 @@ const ContactSection: React.FC = () => {
         
       if (error) throw error;
       
-      // Create notification using admin_notifications table if user is logged in
-      if (user) {
-        await supabase
-          .from('admin_notifications')
-          .insert({
-            title: 'Inquiry Submitted',
-            message: `Your ${formData.inquiryType} inquiry has been submitted successfully. We'll get back to you soon.`,
-            notification_type: 'inquiry_submitted'
-          });
-      }
-      
       setIsSubmitComplete(true);
       
       toast({
@@ -103,7 +91,7 @@ const ContactSection: React.FC = () => {
   };
 
   return (
-    <section ref={ref} id="contact" className="min-h-screen relative py-20">
+    <section ref={ref} id="contact-section" className="min-h-screen relative py-20">
       {/* Background gradients */}
       <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 z-0"></div>
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(120,119,198,0.3),rgba(255,255,255,0))] z-0"></div>
@@ -206,7 +194,7 @@ const ContactSection: React.FC = () => {
                 </div>
                 <h4 className="text-xl font-medium text-white mb-2">Message Sent!</h4>
                 <p className="text-gray-300">
-                  Thank you for reaching out. We'll get back to you shortly.
+                  Thank you for reaching out. We&apos;ll get back to you shortly.
                 </p>
               </div>
             ) : (
