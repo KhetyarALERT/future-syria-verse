@@ -43,10 +43,11 @@ const ContactSection: React.FC = () => {
       const { error } = await supabase
         .from('inquiries')
         .insert({
+          name: formData.name,
           email: formData.email,
           phone: formData.phone || null,
           inquiry_type: formData.inquiryType,
-          inquiry_text: `Name: ${formData.name}\n\nMessage: ${formData.message}`,
+          inquiry_text: formData.message,
           language: 'en'
         });
         
@@ -59,7 +60,7 @@ const ContactSection: React.FC = () => {
         description: "We'll get back to you soon.",
       });
       
-      // Reset form after 2 seconds
+      // Reset form after 3 seconds
       setTimeout(() => {
         setFormData({
           name: '',
