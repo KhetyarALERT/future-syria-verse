@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   MessageCircle, 
@@ -7,38 +7,50 @@ import {
   Send, 
   Bot, 
   User, 
-  Sparkles, 
-  Zap,
-  Brain,
   Mic,
-  MicOff
+  MicOff,
+  Brain
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useAdvancedAIChat } from '@/hooks/useAdvancedAIChat';
+import { useEnhancedAI } from '@/hooks/useEnhancedAI';
+import { useAuth } from '@/hooks/useAuth';
 
 const FuturisticChatWidget: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
   const [isListening, setIsListening] = useState(false);
-  const { 
-    messages, 
-    isTyping, 
-    sendMessage, 
-    initializeChat,
-    messagesEndRef,
-    conversationState 
-  } = useAdvancedAIChat();
+  const [language, setLanguage] = useState<'en' | 'ar'>('en');
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  
+  const { user } = useAuth();
+  const { messages, isLoading, sendMessage, clearMessages, loadKnowledgeBase } = useEnhancedAI();
 
   useEffect(() => {
-    if (isOpen && messages.length === 0) {
-      initializeChat();
+    if (isOpen) {
+      loadKnowledgeBase(language);
+      if (messages.length === 0) {
+        // Add welcome message
+        const welcomeMessage = language === 'ar' 
+          ? 'مرحباً! أنا مساعد DigitalPro الذكي. كيف يمكنني مساعدتك اليوم؟'
+          : 'Hello! I\'m DigitalPro\'s AI assistant. How can I help you today?';
+        
+        sendMessage(welcomeMessage, language);
+      }
     }
-  }, [isOpen, messages.length, initializeChat]);
+  }, [isOpen, language, loadKnowledgeBase]);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   const handleSend = () => {
     if (input.trim()) {
-      sendMessage(input);
+      sendMessage(input, language);
       setInput('');
     }
   };
@@ -60,7 +72,7 @@ const FuturisticChatWidget: React.FC = () => {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         const recognition = new SpeechRecognition();
         
-        recognition.lang = 'en-US';
+        recognition.lang = language === 'ar' ? 'ar-SA' : 'en-US';
         recognition.interimResults = false;
         recognition.maxAlternatives = 1;
         
@@ -140,18 +152,29 @@ const FuturisticChatWidget: React.FC = () => {
               <h3 className="text-white font-semibold">AI Consultant</h3>
               <div className="flex items-center space-x-2">
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                <span className="text-xs text-gray-300">Online</span>
+                <span className="text-xs text-gray-300">
+                  {user ? `Welcome, ${user.user_metadata?.full_name || user.email?.split('@')[0]}` : 'Online'}
+                </span>
               </div>
             </div>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setIsOpen(false)}
-            className="text-gray-400 hover:text-white hover:bg-white/10 rounded-full p-2"
-          >
-            <X className="w-4 h-4" />
-          </Button>
+          
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => setLanguage(language === 'en' ? 'ar' : 'en')}
+              className="text-xs px-2 py-1 bg-white/10 rounded-md hover:bg-white/20 transition-colors"
+            >
+              {language === 'en' ? 'العربية' : 'English'}
+            </button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsOpen(false)}
+              className="text-gray-400 hover:text-white hover:bg-white/10 rounded-full p-2"
+            >
+              <X className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
 
         {/* Messages */}
@@ -162,17 +185,17 @@ const FuturisticChatWidget: React.FC = () => {
                 key={message.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div className={`flex items-start space-x-2 max-w-[85%] ${
-                  message.sender === 'user' ? 'flex-row-reverse space-x-reverse' : ''
+                  message.role === 'user' ? 'flex-row-reverse space-x-reverse' : ''
                 }`}>
                   <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                    message.sender === 'user' 
+                    message.role === 'user' 
                       ? 'bg-gradient-to-r from-green-500 to-emerald-500' 
                       : 'bg-gradient-to-r from-blue-500 to-purple-500'
                   }`}>
-                    {message.sender === 'user' ? (
+                    {message.role === 'user' ? (
                       <User className="w-4 h-4 text-white" />
                     ) : (
                       <Bot className="w-4 h-4 text-white" />
@@ -180,7 +203,7 @@ const FuturisticChatWidget: React.FC = () => {
                   </div>
 
                   <div className={`p-3 rounded-2xl backdrop-blur-sm ${
-                    message.sender === 'user'
+                    message.role === 'user'
                       ? 'bg-gradient-to-r from-green-600/80 to-emerald-600/80 text-white border border-green-500/30'
                       : 'bg-white/10 text-gray-100 border border-white/20'
                   }`}>
@@ -199,7 +222,7 @@ const FuturisticChatWidget: React.FC = () => {
             ))}
           </AnimatePresence>
 
-          {isTyping && (
+          {isLoading && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -238,15 +261,16 @@ const FuturisticChatWidget: React.FC = () => {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="Type your message..."
+                placeholder={language === 'ar' ? 'اكتب رسالتك...' : 'Type your message...'}
                 className="bg-white/10 border-white/20 text-white placeholder-gray-400 rounded-xl pr-12"
-                disabled={isTyping}
+                disabled={isLoading}
+                dir={language === 'ar' ? 'rtl' : 'ltr'}
               />
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={toggleVoiceRecognition}
-                className={`absolute right-2 top-1/2 transform -translate-y-1/2 p-1 rounded-lg transition-colors ${
+                className={`absolute ${language === 'ar' ? 'left-2' : 'right-2'} top-1/2 transform -translate-y-1/2 p-1 rounded-lg transition-colors ${
                   isListening 
                     ? 'text-red-400 hover:text-red-300 bg-red-500/20' 
                     : 'text-gray-400 hover:text-white hover:bg-white/10'
@@ -258,7 +282,7 @@ const FuturisticChatWidget: React.FC = () => {
             
             <Button
               onClick={handleSend}
-              disabled={!input.trim() || isTyping}
+              disabled={!input.trim() || isLoading}
               className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl p-3"
             >
               <Send className="w-4 h-4" />

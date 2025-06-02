@@ -1,4 +1,3 @@
-
 import React, { useRef, useState } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { 
@@ -15,16 +14,18 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 
 const ContactSection: React.FC = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitComplete, setIsSubmitComplete] = useState(false);
   
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
+    name: user?.user_metadata?.full_name || '',
+    email: user?.email || '',
     phone: '',
     message: '',
     inquiryType: 'general' as 'general' | 'service_inquiry' | 'support_request' | 'complaint' | 'suggestion'
@@ -48,10 +49,28 @@ const ContactSection: React.FC = () => {
           phone: formData.phone || null,
           inquiry_type: formData.inquiryType,
           inquiry_text: formData.message,
-          language: 'en'
+          language: 'en',
+          user_id: user?.id || null,
+          metadata: {
+            source: 'contact_form',
+            user_agent: navigator.userAgent,
+            timestamp: new Date().toISOString()
+          }
         });
         
       if (error) throw error;
+      
+      // Create notification for user if logged in
+      if (user) {
+        await supabase
+          .from('notifications')
+          .insert({
+            user_id: user.id,
+            title: 'Inquiry Submitted',
+            message: `Your ${formData.inquiryType} inquiry has been submitted successfully. We'll get back to you soon.`,
+            type: 'success'
+          });
+      }
       
       setIsSubmitComplete(true);
       
@@ -63,8 +82,8 @@ const ContactSection: React.FC = () => {
       // Reset form after 3 seconds
       setTimeout(() => {
         setFormData({
-          name: '',
-          email: '',
+          name: user?.user_metadata?.full_name || '',
+          email: user?.email || '',
           phone: '',
           message: '',
           inquiryType: 'general'
@@ -103,6 +122,11 @@ const ContactSection: React.FC = () => {
           <p className="text-xl text-gray-300">
             Ready to transform your digital presence? Reach out to us for a personalized consultation.
           </p>
+          {user && (
+            <p className="text-sm text-blue-400 mt-2">
+              Welcome back, {user.user_metadata?.full_name || user.email}! Your details are pre-filled.
+            </p>
+          )}
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 max-w-5xl mx-auto">
@@ -216,6 +240,7 @@ const ContactSection: React.FC = () => {
                     required
                     placeholder="you@example.com"
                     className="bg-white/10 border-white/20 text-white placeholder:text-gray-400"
+                    disabled={!!user}
                   />
                 </div>
                 
