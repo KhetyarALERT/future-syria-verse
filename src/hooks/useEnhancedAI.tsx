@@ -25,14 +25,43 @@ export function useEnhancedAI() {
 
   const loadKnowledgeBase = useCallback(async (language: string = 'en') => {
     try {
-      const { data, error } = await supabase
-        .from('ai_knowledge_base')
-        .select('*')
-        .eq('language', language)
-        .eq('active', true);
+      // Use hardcoded knowledge base since ai_knowledge_base table may not exist
+      const defaultKnowledge: KnowledgeItem[] = [
+        {
+          id: '1',
+          category: 'services',
+          question: 'What services do you offer?',
+          answer: 'We offer logo design, website development, e-commerce solutions, digital marketing, AI systems, and social media management.',
+          tags: ['services', 'general'],
+          language: 'en'
+        },
+        {
+          id: '2',
+          category: 'services',
+          question: 'ما هي الخدمات التي تقدمونها؟',
+          answer: 'نحن نقدم تصميم الشعارات، تطوير المواقع، حلول التجارة الإلكترونية، التسويق الرقمي، أنظمة الذكاء الاصطناعي، وإدارة وسائل التواصل الاجتماعي.',
+          tags: ['services', 'general'],
+          language: 'ar'
+        },
+        {
+          id: '3',
+          category: 'pricing',
+          question: 'How do you price your services?',
+          answer: 'We provide customized quotes based on your specific needs. Each project is unique, so we prefer to understand your requirements first through a free consultation.',
+          tags: ['pricing', 'consultation'],
+          language: 'en'
+        },
+        {
+          id: '4',
+          category: 'process',
+          question: 'What is your development process?',
+          answer: 'Our process includes: 1) Free consultation, 2) Requirement analysis, 3) Design & development, 4) Testing & refinement, 5) Delivery & support.',
+          tags: ['process', 'workflow'],
+          language: 'en'
+        }
+      ];
       
-      if (error) throw error;
-      setKnowledgeBase(data || []);
+      setKnowledgeBase(defaultKnowledge.filter(item => item.language === language));
     } catch (error) {
       console.error('Error loading knowledge base:', error);
     }

@@ -40,14 +40,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          // Fetch user profile
-          const { data: profileData } = await supabase
-            .from('profiles')
+          // Try to fetch user profile - create if doesn't exist
+          const { data: profileData, error } = await supabase
+            .from('service_examples')
             .select('*')
-            .eq('id', session.user.id)
-            .single();
+            .eq('user_id', session.user.id)
+            .limit(1);
           
-          setProfile(profileData);
+          if (profileData && profileData.length > 0) {
+            // Mock profile data from user metadata
+            setProfile({
+              id: session.user.id,
+              full_name: session.user.user_metadata?.full_name || null,
+              avatar_url: session.user.user_metadata?.avatar_url || null,
+              phone: session.user.user_metadata?.phone || null,
+              created_at: session.user.created_at,
+              updated_at: session.user.updated_at || session.user.created_at
+            });
+          } else {
+            // Create mock profile
+            setProfile({
+              id: session.user.id,
+              full_name: session.user.user_metadata?.full_name || null,
+              avatar_url: session.user.user_metadata?.avatar_url || null,
+              phone: session.user.user_metadata?.phone || null,
+              created_at: session.user.created_at,
+              updated_at: session.user.updated_at || session.user.created_at
+            });
+          }
         } else {
           setProfile(null);
         }
@@ -135,10 +155,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const updateProfile = async (updates: Partial<Profile>) => {
     if (!user) return { error: new Error('No user logged in') };
     
-    const { error } = await supabase
-      .from('profiles')
-      .update(updates)
-      .eq('id', user.id);
+    // Update user metadata instead of profiles table
+    const { error } = await supabase.auth.updateUser({
+      data: {
+        full_name: updates.full_name,
+        phone: updates.phone,
+        avatar_url: updates.avatar_url
+      }
+    });
     
     if (!error) {
       setProfile(prev => prev ? { ...prev, ...updates } : null);

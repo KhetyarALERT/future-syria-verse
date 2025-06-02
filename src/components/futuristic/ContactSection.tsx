@@ -1,3 +1,4 @@
+
 import React, { useRef, useState } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { 
@@ -50,7 +51,6 @@ const ContactSection: React.FC = () => {
           inquiry_type: formData.inquiryType,
           inquiry_text: formData.message,
           language: 'en',
-          user_id: user?.id || null,
           metadata: {
             source: 'contact_form',
             user_agent: navigator.userAgent,
@@ -60,15 +60,14 @@ const ContactSection: React.FC = () => {
         
       if (error) throw error;
       
-      // Create notification for user if logged in
+      // Create notification using admin_notifications table if user is logged in
       if (user) {
         await supabase
-          .from('notifications')
+          .from('admin_notifications')
           .insert({
-            user_id: user.id,
             title: 'Inquiry Submitted',
             message: `Your ${formData.inquiryType} inquiry has been submitted successfully. We'll get back to you soon.`,
-            type: 'success'
+            notification_type: 'inquiry_submitted'
           });
       }
       
