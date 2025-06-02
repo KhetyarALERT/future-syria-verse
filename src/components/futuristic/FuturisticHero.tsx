@@ -1,255 +1,141 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
-import { 
-  Sparkles, 
-  Zap, 
-  Brain, 
-  Rocket, 
-  Star,
-  Play,
-  ChevronDown,
-  Code,
-  Palette,
-  ShoppingCart,
-  MessageSquare,
-  TrendingUp
-} from 'lucide-react';
+import { ArrowRight, Sparkles, Zap, Target, Rocket } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const FuturisticHero: React.FC = () => {
-  const navigate = useNavigate();
-  const [showChat, setShowChat] = useState(false);
-
-  const services = [
-    {
-      icon: Palette,
-      title: 'Logo Design',
-      description: 'AI-powered brand identities',
-      color: 'from-pink-500 to-rose-500',
-      path: '/services/logo-design'
-    },
-    {
-      icon: Code,
-      title: 'Web Development',
-      description: 'Next-gen digital experiences',
-      color: 'from-blue-500 to-cyan-500',
-      path: '/services/web-development'
-    },
-    {
-      icon: ShoppingCart,
-      title: 'E-commerce',
-      description: 'Smart online stores',
-      color: 'from-green-500 to-emerald-500',
-      path: '/services/ecommerce'
-    },
-    {
-      icon: MessageSquare,
-      title: 'AI Assistants',
-      description: 'Intelligent automation',
-      color: 'from-purple-500 to-violet-500',
-      path: '/services/ai-assistants'
-    },
-    {
-      icon: TrendingUp,
-      title: 'Digital Marketing',
-      description: 'Growth-driven strategies',
-      color: 'from-orange-500 to-amber-500',
-      path: '/services/digital-marketing'
-    }
-  ];
-
-  const stats = [
-    { number: '500+', label: 'Projects Completed', icon: Rocket },
-    { number: '98%', label: 'Client Satisfaction', icon: Star },
-    { number: '24h', label: 'Response Time', icon: Zap },
-    { number: '50+', label: 'AI Models Used', icon: Brain }
-  ];
-
   const scrollToContact = () => {
-    const element = document.getElementById('contact');
-    element?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  const openDemoVideo = () => {
-    // Open a demo video modal or navigate to demo page
-    window.open('https://www.youtube.com/watch?v=dQw4w9WgXcQ', '_blank');
+    const contactSection = document.getElementById('contact-section');
+    if (contactSection) {
+      contactSection.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 overflow-hidden">
-      {/* Animated background */}
-      <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(120,119,198,0.3),rgba(255,255,255,0))]"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_50%,rgba(120,119,198,0.15),rgba(255,255,255,0))]"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(120,119,198,0.2),rgba(255,255,255,0))]"></div>
+    <section className="relative min-h-screen flex items-center justify-center px-6 py-20">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/30 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/30 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
       </div>
 
-      {/* Floating particles */}
-      <div className="absolute inset-0">
-        {[...Array(50)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-1 h-1 bg-white/30 rounded-full"
-            initial={{
-              x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1200),
-              y: Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 800),
-            }}
-            animate={{
-              x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1200),
-              y: Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 800),
-            }}
-            transition={{
-              duration: Math.random() * 20 + 10,
-              repeat: Infinity,
-              repeatType: "reverse",
-            }}
-          />
-        ))}
-      </div>
+      {/* Grid Pattern Overlay */}
+      <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.03"%3E%3Ccircle cx="30" cy="30" r="2"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-40" />
 
-      <div className="relative z-10 container mx-auto px-4 pt-20 pb-12">
-        {/* Hero Content */}
+      <div className="relative z-10 max-w-7xl mx-auto text-center">
+        {/* Badge */}
         <motion.div
-          className="text-center max-w-4xl mx-auto mb-16"
-          initial={{ opacity: 0, y: 50 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: 0.6 }}
+          className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/20 border border-blue-500/30 rounded-full mb-8"
         >
-          <motion.div
-            className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 mb-6 border border-white/20"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2 }}
-          >
-            <Sparkles className="w-4 h-4 text-yellow-400" />
-            <span className="text-sm text-white">AI-Powered Digital Solutions</span>
-          </motion.div>
-
-          <motion.h1
-            className="text-6xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-white via-blue-100 to-purple-200 bg-clip-text text-transparent leading-tight"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.8 }}
-          >
-            Future-Ready
-            <br />
-            <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-              Digital Excellence
-            </span>
-          </motion.h1>
-
-          <motion.p
-            className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto leading-relaxed"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-          >
-            Transform your business with cutting-edge AI technology and innovative digital solutions. 
-            From intelligent design to smart automation, we craft the future of your digital presence.
-          </motion.p>
-
-          <motion.div
-            className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7 }}
-          >
-            <Button
-              onClick={scrollToContact}
-              size="lg"
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 rounded-full text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
-            >
-              <Brain className="w-5 h-5 mr-2" />
-              Start AI Consultation
-              <Sparkles className="w-4 h-4 ml-2" />
-            </Button>
-
-            <Button
-              variant="outline"
-              size="lg"
-              className="border-white/30 text-white hover:bg-white/10 px-8 py-4 rounded-full text-lg backdrop-blur-sm"
-              onClick={openDemoVideo}
-            >
-              <Play className="w-5 h-5 mr-2" />
-              Watch Demo
-            </Button>
-          </motion.div>
+          <Sparkles className="w-4 h-4 text-blue-400" />
+          <span className="text-sm font-medium text-blue-300">AI-Powered Digital Solutions</span>
         </motion.div>
 
-        {/* Services Grid */}
-        <motion.div
-          className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-16"
-          initial={{ opacity: 0, y: 50 }}
+        {/* Main Heading */}
+        <motion.h1
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-white via-blue-200 to-cyan-300 bg-clip-text text-transparent leading-tight"
         >
-          {services.map((service, index) => (
-            <motion.div
-              key={service.title}
-              className="group relative p-6 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 hover:bg-white/15 transition-all duration-300 cursor-pointer"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.9 + index * 0.1 }}
-              whileHover={{ scale: 1.05, y: -5 }}
-              onClick={() => navigate(service.path)}
-            >
-              <div className={`w-12 h-12 bg-gradient-to-r ${service.color} rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
-                <service.icon className="w-6 h-6 text-white" />
-              </div>
-              <h3 className="text-white font-semibold mb-2">{service.title}</h3>
-              <p className="text-gray-400 text-sm">{service.description}</p>
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            </motion.div>
-          ))}
+          Transform Your
+          <br />
+          <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
+            Digital Future
+          </span>
+        </motion.h1>
+
+        {/* Subtitle */}
+        <motion.p
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.4 }}
+          className="text-xl md:text-2xl text-gray-300 mb-12 max-w-4xl mx-auto leading-relaxed"
+        >
+          We create intelligent digital experiences that drive growth. From AI-powered websites to smart branding solutions, 
+          we're your partner in the digital revolution.
+        </motion.p>
+
+        {/* Feature Cards */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.6 }}
+          className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 max-w-4xl mx-auto"
+        >
+          <div className="p-6 bg-slate-800/50 backdrop-blur-sm border border-blue-500/20 rounded-2xl">
+            <Zap className="w-8 h-8 text-yellow-400 mb-4 mx-auto" />
+            <h3 className="text-lg font-semibold text-white mb-2">Lightning Fast</h3>
+            <p className="text-gray-400 text-sm">Delivered in record time with cutting-edge technology</p>
+          </div>
+          
+          <div className="p-6 bg-slate-800/50 backdrop-blur-sm border border-purple-500/20 rounded-2xl">
+            <Target className="w-8 h-8 text-purple-400 mb-4 mx-auto" />
+            <h3 className="text-lg font-semibold text-white mb-2">Precision Targeted</h3>
+            <p className="text-gray-400 text-sm">Solutions tailored exactly to your business needs</p>
+          </div>
+          
+          <div className="p-6 bg-slate-800/50 backdrop-blur-sm border border-cyan-500/20 rounded-2xl">
+            <Rocket className="w-8 h-8 text-cyan-400 mb-4 mx-auto" />
+            <h3 className="text-lg font-semibold text-white mb-2">Future Ready</h3>
+            <p className="text-gray-400 text-sm">Built with tomorrow's technology, available today</p>
+          </div>
+        </motion.div>
+
+        {/* CTA Buttons */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.8 }}
+          className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+        >
+          <Button
+            onClick={scrollToContact}
+            className="px-8 py-4 bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-500 hover:from-blue-700 hover:via-purple-700 hover:to-cyan-600 text-white font-semibold rounded-full shadow-2xl shadow-blue-500/25 transition-all duration-300 transform hover:scale-105 group"
+          >
+            Start Your Project
+            <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+          </Button>
+          
+          <Button
+            variant="outline"
+            className="px-8 py-4 border-2 border-white/20 text-white hover:bg-white/10 font-semibold rounded-full backdrop-blur-sm"
+          >
+            View Our Work
+          </Button>
         </motion.div>
 
         {/* Stats */}
         <motion.div
-          className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16"
-          initial={{ opacity: 0, y: 50 }}
+          initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.2 }}
+          transition={{ duration: 0.8, delay: 1 }}
+          className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 text-center"
         >
-          {stats.map((stat, index) => (
-            <motion.div
-              key={stat.label}
-              className="text-center p-6 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 1.3 + index * 0.1 }}
-              whileHover={{ scale: 1.05 }}
-            >
-              <stat.icon className="w-8 h-8 text-blue-400 mx-auto mb-3" />
-              <div className="text-3xl font-bold text-white mb-1">{stat.number}</div>
-              <div className="text-gray-400 text-sm">{stat.label}</div>
-            </motion.div>
-          ))}
-        </motion.div>
-
-        {/* Call to action */}
-        <motion.div
-          className="text-center"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.5 }}
-        >
-          <motion.div
-            animate={{ y: [0, -10, 0] }}
-            transition={{ repeat: Infinity, duration: 2 }}
-            className="inline-block cursor-pointer"
-            onClick={() => {
-              document.getElementById('services')?.scrollIntoView({ 
-                behavior: 'smooth' 
-              });
-            }}
-          >
-            <ChevronDown className="w-8 h-8 text-white/50" />
-          </motion.div>
+          <div>
+            <div className="text-3xl font-bold text-white mb-2">500+</div>
+            <div className="text-sm text-gray-400">Projects Delivered</div>
+          </div>
+          <div>
+            <div className="text-3xl font-bold text-white mb-2">98%</div>
+            <div className="text-sm text-gray-400">Client Satisfaction</div>
+          </div>
+          <div>
+            <div className="text-3xl font-bold text-white mb-2">24h</div>
+            <div className="text-sm text-gray-400">Response Time</div>
+          </div>
+          <div>
+            <div className="text-3xl font-bold text-white mb-2">50+</div>
+            <div className="text-sm text-gray-400">AI Models</div>
+          </div>
         </motion.div>
       </div>
-    </div>
+    </section>
   );
 };
 
