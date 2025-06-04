@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -84,11 +85,60 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'glow-pulse': {
+					'0%, 100%': {
+						opacity: '0.5',
+						transform: 'scale(1)',
+					},
+					'50%': {
+						opacity: '0.8',
+						transform: 'scale(1.05)',
+					}
+				},
+				'float': {
+					'0%, 100%': {
+						transform: 'translateY(0px)',
+					},
+					'50%': {
+						transform: 'translateY(-10px)',
+					}
+				},
+				'shimmer': {
+					'0%': {
+						transform: 'translateX(-100%)'
+					},
+					'100%': {
+						transform: 'translateX(100%)'
+					}
+				},
+				'gradient-xy': {
+					'0%, 100%': {
+						'background-size': '400% 400%',
+						'background-position': 'left center'
+					},
+					'50%': {
+						'background-size': '200% 200%',
+						'background-position': 'right center'
+					}
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'glow-pulse': 'glow-pulse 2s ease-in-out infinite',
+				'float': 'float 3s ease-in-out infinite',
+				'shimmer': 'shimmer 2s linear infinite',
+				'gradient-xy': 'gradient-xy 15s ease infinite'
+			},
+			backdropBlur: {
+				xs: '2px',
+			},
+			boxShadow: {
+				'glow': '0 0 20px rgba(59, 130, 246, 0.15)',
+				'glow-lg': '0 0 30px rgba(59, 130, 246, 0.2)',
+				'glow-purple': '0 0 20px rgba(147, 51, 234, 0.15)',
+				'glow-cyan': '0 0 20px rgba(34, 211, 238, 0.15)',
 			}
 		}
 	},

@@ -4,8 +4,17 @@ import FuturisticNavigation from './FuturisticNavigation';
 import FuturisticHero from './FuturisticHero';
 import FuturisticChatWidget from './FuturisticChatWidget';
 import ContactSection from './ContactSection';
+import PromotionCard from './PromotionCard';
+import EnhancedReflections from './EnhancedReflections';
 
 const FuturisticApp: React.FC = () => {
+  const scrollToContact = () => {
+    const contactSection = document.getElementById('contact-section');
+    if (contactSection) {
+      contactSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       <FuturisticNavigation />
@@ -28,32 +37,47 @@ const FuturisticApp: React.FC = () => {
           </p>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-            <ServiceCard 
-              title="Logo Design" 
-              description="AI-powered brand identity creation with unique, memorable designs"
-              linkTo="/services/logo-design"
-            />
-            <ServiceCard 
-              title="Web Development" 
-              description="Modern, responsive websites built with cutting-edge technology"
-              linkTo="/services/web-development"
-            />
-            <ServiceCard 
-              title="AI Assistants" 
-              description="Intelligent chatbots and virtual assistants for business automation"
-              linkTo="/services/ai-assistants"
-            />
+            <EnhancedReflections variant="glow" intensity="medium">
+              <ServiceCard 
+                title="Logo Design" 
+                description="AI-powered brand identity creation with unique, memorable designs"
+                linkTo="/services/logo-design"
+              />
+            </EnhancedReflections>
+            
+            <EnhancedReflections variant="glow" intensity="medium">
+              <ServiceCard 
+                title="Web Development" 
+                description="Modern, responsive websites built with cutting-edge technology"
+                linkTo="/services/web-development"
+              />
+            </EnhancedReflections>
+            
+            <EnhancedReflections variant="glow" intensity="medium">
+              <ServiceCard 
+                title="AI Assistants" 
+                description="Intelligent chatbots and virtual assistants for business automation"
+                linkTo="/services/ai-assistants"
+              />
+            </EnhancedReflections>
           </div>
           
           <a 
             href="/services" 
-            className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-full text-white font-medium"
+            className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-full text-white font-medium transition-all duration-300 transform hover:scale-105"
           >
             View All Services
             <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
             </svg>
           </a>
+        </div>
+      </section>
+
+      {/* Promotion Section */}
+      <section className="relative py-20 bg-gradient-to-br from-slate-900 via-blue-900/10 to-purple-900/10">
+        <div className="container mx-auto px-4">
+          <PromotionCard onGetStarted={scrollToContact} />
         </div>
       </section>
       
@@ -68,27 +92,29 @@ const FuturisticApp: React.FC = () => {
             Track your service inquiries and project progress with us.
           </p>
           
-          <div className="mb-12 bg-white/5 backdrop-blur-sm p-8 rounded-2xl border border-white/10">
-            <h3 className="text-2xl font-semibold text-white mb-4">Your Projects & Inquiries</h3>
-            <p className="text-gray-300 mb-6">
-              Sign in to view your service inquiries and track their progress.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
-              <a 
-                href="/auth" 
-                className="px-6 py-3 bg-white/10 hover:bg-white/15 border border-white/20 rounded-xl text-white transition-colors"
-              >
-                Sign In to View Portfolio
-              </a>
-              <a 
-                href="/portfolio" 
-                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-xl text-white"
-              >
-                Browse Portfolio
-              </a>
+          <EnhancedReflections variant="depth" intensity="medium" className="mb-12">
+            <div className="bg-white/5 backdrop-blur-sm p-8 rounded-2xl border border-white/10">
+              <h3 className="text-2xl font-semibold text-white mb-4">Your Projects & Inquiries</h3>
+              <p className="text-gray-300 mb-6">
+                Sign in to view your service inquiries and track their progress.
+              </p>
+              
+              <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
+                <a 
+                  href="/auth" 
+                  className="px-6 py-3 bg-white/10 hover:bg-white/15 border border-white/20 rounded-xl text-white transition-colors"
+                >
+                  Sign In to View Portfolio
+                </a>
+                <a 
+                  href="/portfolio" 
+                  className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-xl text-white transition-all duration-300 transform hover:scale-105"
+                >
+                  Browse Portfolio
+                </a>
+              </div>
             </div>
-          </div>
+          </EnhancedReflections>
         </div>
       </section>
       
@@ -108,10 +134,12 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ title, description, linkTo })
   return (
     <a 
       href={linkTo}
-      className="group bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 overflow-hidden transition-all duration-300 hover:transform hover:scale-[1.02] hover:border-white/30"
+      className="group bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 overflow-hidden transition-all duration-300 hover:transform hover:scale-[1.02] hover:border-white/30 hover:shadow-2xl hover:shadow-blue-500/10"
     >
-      <div className="aspect-video bg-gradient-to-br from-blue-900 to-purple-900 flex items-center justify-center">
-        <span className="text-white/50">Service Preview</span>
+      <div className="aspect-video bg-gradient-to-br from-blue-900 to-purple-900 flex items-center justify-center relative overflow-hidden">
+        <span className="text-white/50 z-10 relative">Service Preview</span>
+        {/* Animated background effect */}
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
       </div>
       <div className="p-6">
         <h3 className="text-xl font-semibold text-white mb-2 group-hover:text-blue-300 transition-colors">{title}</h3>
