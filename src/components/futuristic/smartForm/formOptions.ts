@@ -4,6 +4,11 @@ export const serviceOptions = [
   { value: 'web-development', label: 'Website Development' },
   { value: 'ai-solutions', label: 'AI Solutions' },
   { value: 'digital-marketing', label: 'Digital Marketing' },
+  { value: 'crm', label: 'CRM Systems' },
+  { value: 'ai-customer-support', label: 'AI Customer Support' },
+  { value: 'trading-assistant', label: 'Trading Assistant' },
+  { value: 'reminder', label: 'Smart Reminder System' },
+  { value: 'customized-service', label: 'Customized Services' },
   { value: 'consultation', label: 'Free Consultation' }
 ];
 

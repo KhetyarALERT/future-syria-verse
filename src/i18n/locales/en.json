@@ -52,6 +52,26 @@
     "erp": {
       "title": "Enterprise ERP",
       "description": "Complete business management solutions"
+    },
+    "crm": {
+      "title": "CRM Systems",
+      "description": "Customer relationship management solutions"
+    },
+    "aiCustomerSupport": {
+      "title": "AI Customer Support",
+      "description": "Human-like AI customer service solutions"
+    },
+    "tradingAssistant": {
+      "title": "Trading Assistant",
+      "description": "AI-powered trading intelligence and automation"
+    },
+    "reminder": {
+      "title": "Smart Reminder System",
+      "description": "Intelligent task and event management"
+    },
+    "customizedService": {
+      "title": "Customized Services",
+      "description": "Tailored solutions for your unique needs"
     }
   },
   "chat": {

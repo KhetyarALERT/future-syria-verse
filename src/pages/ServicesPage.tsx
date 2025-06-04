@@ -12,7 +12,12 @@ import {
   Star,
   Clock,
   CheckCircle,
-  Zap
+  Zap,
+  Users,
+  MessageCircle,
+  BarChart3,
+  Bell,
+  Wrench
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ServiceExamples from '@/components/ServiceExamples';
@@ -29,7 +34,6 @@ const ServicesPage: React.FC = () => {
       title: 'Logo Design',
       description: 'Professional brand identity creation with unique, memorable designs that capture your brand essence.',
       color: 'from-pink-500 to-rose-500',
-      price: 'Starting from $299',
       duration: '3-7 days',
       features: [
         'Multiple unique concepts',
@@ -52,7 +56,6 @@ const ServicesPage: React.FC = () => {
       title: 'Web Development',
       description: 'Modern, responsive websites built with cutting-edge technology for optimal performance.',
       color: 'from-blue-500 to-cyan-500',
-      price: 'Starting from $1,999',
       duration: '2-6 weeks',
       features: [
         'Responsive design',
@@ -75,7 +78,6 @@ const ServicesPage: React.FC = () => {
       title: 'E-commerce Solutions',
       description: 'Complete online store solutions with payment processing and inventory management.',
       color: 'from-green-500 to-emerald-500',
-      price: 'Starting from $2,999',
       duration: '3-8 weeks',
       features: [
         'Product catalog management',
@@ -98,7 +100,6 @@ const ServicesPage: React.FC = () => {
       title: 'AI Assistants',
       description: 'Intelligent chatbots and virtual assistants powered by advanced AI technology.',
       color: 'from-purple-500 to-violet-500',
-      price: 'Starting from $1,499',
       duration: '2-4 weeks',
       features: [
         'Natural language processing',
@@ -121,7 +122,6 @@ const ServicesPage: React.FC = () => {
       title: 'Digital Marketing',
       description: 'Comprehensive digital marketing strategies including social media and SEO.',
       color: 'from-orange-500 to-amber-500',
-      price: 'Starting from $999/month',
       duration: 'Ongoing',
       features: [
         'Social media management',
@@ -136,6 +136,116 @@ const ServicesPage: React.FC = () => {
         'Local business visibility boost',
         'E-commerce sales funnel',
         'Brand awareness campaign'
+      ]
+    },
+    {
+      id: 'crm',
+      icon: Users,
+      title: 'CRM Systems',
+      description: 'Customer relationship management solutions to optimize your business relationships.',
+      color: 'from-indigo-500 to-blue-500',
+      duration: '2-5 weeks',
+      features: [
+        'Contact management',
+        'Sales pipeline tracking',
+        'Email integration',
+        'Analytics dashboard',
+        'Workflow automation',
+        'Team collaboration'
+      ],
+      examples: [
+        'Sales team CRM setup',
+        'Customer service integration',
+        'Marketing automation',
+        'Lead management system'
+      ]
+    },
+    {
+      id: 'ai-customer-support',
+      icon: MessageCircle,
+      title: 'AI Customer Support',
+      description: 'Human-like AI customer service that provides personalized assistance 24/7.',
+      color: 'from-cyan-500 to-teal-500',
+      duration: '2-4 weeks',
+      features: [
+        'Human-like conversations',
+        'Multi-language support',
+        'Omnichannel integration',
+        'Context awareness',
+        'Instant responses',
+        'Advanced analytics'
+      ],
+      examples: [
+        'E-commerce support bot',
+        'Technical support assistant',
+        'Booking and reservations',
+        'Product recommendation engine'
+      ]
+    },
+    {
+      id: 'trading-assistant',
+      icon: BarChart3,
+      title: 'Trading Assistant',
+      description: 'AI-powered trading intelligence with market analysis and automated strategies.',
+      color: 'from-emerald-500 to-green-500',
+      duration: '3-6 weeks',
+      features: [
+        'Market analysis',
+        'Trading signals',
+        'Risk management',
+        'Portfolio tracking',
+        'Smart alerts',
+        'Performance analytics'
+      ],
+      examples: [
+        'Crypto trading bot',
+        'Stock market analyzer',
+        'Risk assessment tool',
+        'Portfolio optimizer'
+      ]
+    },
+    {
+      id: 'reminder',
+      icon: Bell,
+      title: 'Smart Reminder System',
+      description: 'Intelligent task and event management that learns your patterns and priorities.',
+      color: 'from-amber-500 to-yellow-500',
+      duration: '1-3 weeks',
+      features: [
+        'Smart scheduling',
+        'Priority system',
+        'Multi-platform sync',
+        'Recurring tasks',
+        'Analytics insights',
+        'Team collaboration'
+      ],
+      examples: [
+        'Personal productivity app',
+        'Team task management',
+        'Meeting scheduler',
+        'Project deadline tracker'
+      ]
+    },
+    {
+      id: 'customized-service',
+      icon: Wrench,
+      title: 'Customized Services',
+      description: 'Tailored solutions built specifically for your unique business requirements.',
+      color: 'from-violet-500 to-purple-500',
+      duration: 'Variable',
+      features: [
+        'Custom design',
+        'Bespoke development',
+        'API integration',
+        'Cross-platform solutions',
+        'Ongoing support',
+        'Full customization'
+      ],
+      examples: [
+        'Custom business software',
+        'Specialized automation tools',
+        'Industry-specific solutions',
+        'Enterprise integrations'
       ]
     },
   ];
@@ -219,7 +329,7 @@ const ServicesPage: React.FC = () => {
                     <Clock className="w-4 h-4" />
                     <span>{service.duration}</span>
                   </div>
-                  <div className="text-white font-semibold">{service.price}</div>
+                  <div className="text-white font-semibold">Contact for Quote</div>
                 </div>
                 
                 <div className="mb-6">

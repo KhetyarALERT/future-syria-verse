@@ -9,7 +9,6 @@ const ServicesOverview: React.FC = () => {
       id: 'logo-design',
       title: 'Logo Design',
       description: 'AI-powered logo creation with unlimited revisions',
-      price: '$50 - $200',
       image: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=400&h=300&fit=crop',
       features: ['AI-Generated Concepts', 'Vector Files', '24h Delivery', 'Unlimited Revisions'],
       gradient: 'from-pink-500 to-rose-500',
@@ -19,7 +18,6 @@ const ServicesOverview: React.FC = () => {
       id: 'website-development',
       title: 'Website Development',
       description: 'Modern, responsive websites built with latest technologies',
-      price: '$200 - $1000',
       image: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=400&h=300&fit=crop',
       features: ['Responsive Design', 'SEO Optimized', 'Fast Loading', 'Mobile First'],
       gradient: 'from-blue-500 to-cyan-500',
@@ -29,7 +27,6 @@ const ServicesOverview: React.FC = () => {
       id: 'ecommerce',
       title: 'E-commerce Solutions',
       description: 'Complete online stores with payment integration',
-      price: '$500 - $2000',
       image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400&h=300&fit=crop',
       features: ['Payment Gateway', 'Inventory Management', 'Admin Dashboard', 'Mobile App'],
       gradient: 'from-green-500 to-emerald-500',
@@ -39,21 +36,28 @@ const ServicesOverview: React.FC = () => {
       id: 'ai-assistants',
       title: 'AI Personal Assistants',
       description: 'Custom AI chatbots and virtual assistants',
-      price: '$10 - $50/month',
       image: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=400&h=300&fit=crop',
       features: ['Natural Language', '24/7 Support', 'Custom Training', 'Multi-platform'],
       gradient: 'from-purple-500 to-violet-500',
       path: '/services/ai-assistants'
     },
     {
-      id: 'automation',
-      title: 'Work Automation',
-      description: 'Automate repetitive tasks and workflows',
-      price: 'Custom Quote',
-      image: 'https://images.unsplash.com/photo-1518186285589-2f7649de83e0?w=400&h=300&fit=crop',
-      features: ['Process Automation', 'Data Integration', 'API Development', 'Workflow Design'],
-      gradient: 'from-orange-500 to-red-500',
-      path: '/services/automation'
+      id: 'crm',
+      title: 'CRM Systems',
+      description: 'Customer relationship management solutions',
+      image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=300&fit=crop',
+      features: ['Contact Management', 'Sales Pipeline', 'Email Integration', 'Analytics'],
+      gradient: 'from-indigo-500 to-blue-500',
+      path: '/services/crm'
+    },
+    {
+      id: 'customized-service',
+      title: 'Customized Services',
+      description: 'Tailored solutions for your unique needs',
+      image: 'https://images.unsplash.com/photo-1551434678-e076c223a692?w=400&h=300&fit=crop',
+      features: ['Custom Design', 'Bespoke Development', 'API Integration', 'Full Support'],
+      gradient: 'from-violet-500 to-purple-500',
+      path: '/services/customized-service'
     }
   ];
 
@@ -88,7 +92,7 @@ const ServicesOverview: React.FC = () => {
                 />
                 <div className={`absolute inset-0 bg-gradient-to-t ${service.gradient} opacity-80`} />
                 <div className="absolute top-4 right-4 bg-white/20 backdrop-blur-sm rounded-lg px-3 py-1">
-                  <span className="text-white text-sm font-semibold">{service.price}</span>
+                  <span className="text-white text-sm font-semibold">Contact for Quote</span>
                 </div>
               </div>
 
