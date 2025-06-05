@@ -35,7 +35,7 @@ const ServiceHero: React.FC<ServiceHeroProps> = ({ data }) => {
               to="/requirements"
               className="px-8 py-4 bg-white text-gray-800 rounded-xl font-semibold hover:bg-gray-100 transition-all duration-300 transform hover:scale-105"
             >
-              Get Started - {data.price}
+              Get Started - Contact for Quote
             </Link>
             <button className="px-8 py-4 border-2 border-white text-white rounded-xl font-semibold hover:bg-white hover:text-gray-800 transition-all duration-300">
               View Portfolio
